@@ -1,0 +1,52 @@
+{
+    "name": "hlf-explorer",
+    "version": "1.0.0",
+    "description": "Explorer for HLF",
+    "author": "Renat Gubaev",
+    "license": "ISC",
+    "main": "index.js",
+    "scripts": {
+        "submodules:update": "git submodule update --init",
+        "format": "prettier --ignore-path ./.prettierignore --check \"packages/**/*.{ts,js,json}\"",
+        "format:fix": "prettier --ignore-path ./.prettierignore --write \"packages/**/*.{ts,js,json}\" --loglevel warn"
+    },
+    "dependencies": {
+        "@hlf-explorer/common": "file:./src/common",
+        "@nestjs/common": "6.10.11",
+        "@nestjs/core": "6.10.11",
+        "@nestjs/jwt": "6.1.1",
+        "@nestjs/microservices": "6.10.11",
+        "@nestjs/passport": "6.1.1",
+        "@nestjs/platform-express": "6.10.11",
+        "@nestjs/platform-fastify": "6.10.11",
+        "@nestjs/platform-socket.io": "6.10.11",
+        "@nestjs/platform-ws": "6.10.11",
+        "@nestjs/swagger": "4.0.9",
+        "@nestjs/websockets": "6.10.11",
+        "@ts-core/backend": "^1.0.17",
+        "@ts-core/backend-nestjs": "^6.0.12",
+        "@ts-core/common": "^1.0.82",
+        "@ts-core/blockchain-fabric": "^1.0.25",
+        "@types/socket.io": "2.1.4",
+        "cache-manager-memory-store": "1.1.0",
+        "compression": "1.7.4",
+        "express-rate-limit": "5.0.0",
+        "helmet": "3.21.2",
+        "passport": "0.4.1",
+        "passport-http-bearer": "1.0.1",
+        "passport-jwt": "4.0.0",
+        "pg": "7.14.0",
+        "swagger-ui-express": "4.1.1"
+    },
+    "devDependencies": {
+        "tslint": "5.20.1",
+        "prettier": "1.19.1",
+        "ts-node": "8.5.4",
+        "ts-node-dev": "1.0.0-pre.44",
+        "typescript": "3.7.3",
+        "tsconfig-paths": "3.9.0"
+    },
+    "engines": {
+        "node": ">= 12.12.18"
+    }
+}

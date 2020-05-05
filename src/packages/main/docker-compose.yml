@@ -1,0 +1,10 @@
+version: '3.2'
+
+services:
+  hlf-explorer-postgres:
+    image: postgres:11.4-alpine
+    restart: always
+    env_file:
+      - ./docker/env/api.env
+    ports:
+      - 15432:5432
