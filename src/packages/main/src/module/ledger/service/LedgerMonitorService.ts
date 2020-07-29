@@ -77,7 +77,6 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
     public async initialize(ledgers: Array<Ledger>): Promise<void> {
         for (let ledger of ledgers) {
             if (!this.items.has(ledger.id.toString())) {
-                // this.items.add(await this.createLedgerInfo(ledger));
                 this.items.add(await this.createLedgerInfo(ledger));
             }
         }

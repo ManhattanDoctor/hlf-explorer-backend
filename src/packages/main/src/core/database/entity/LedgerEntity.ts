@@ -6,6 +6,7 @@ import { Column, OneToMany, Entity, Index, PrimaryGeneratedColumn } from 'typeor
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 
 @Entity()
+@Index(['name'])
 export class LedgerEntity implements Ledger {
     // --------------------------------------------------------------------------
     //
@@ -19,7 +20,6 @@ export class LedgerEntity implements Ledger {
     public id: number;
 
     @Column()
-    @Index({ unique: true })
     @IsString()
     public name: string;
 

@@ -90,6 +90,10 @@ export class AppSettings extends EnvSettingsStorage implements IFabricApiSetting
         return this.getValue('FABRIC_CONNECTION_SETTINGS_PATH');
     }
 
+    public get fabricIsDiscoveryEnabled(): boolean {
+        return AbstractSettingsStorage.parseBoolean(this.getValue('FABRIC_IS_DISCOVERY_ENABLED'));
+    }
+
     // --------------------------------------------------------------------------
     //
     //  Logger Properties

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import {
     ApiForbiddenResponse,
     ApiHeader,
@@ -13,10 +13,8 @@ import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common/dto';
 import { Logger } from '@ts-core/common/logger';
-import { TraceUtil } from '@ts-core/common/trace';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
-import { LedgerBlockEntity } from '../../../../core/database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../../../core/database/DatabaseService';
 import { TransformUtil } from '@ts-core/common/util';
 import { LedgerService } from '../../service/LedgerService';
@@ -96,16 +94,14 @@ export class LedgerBlockTransactionListController extends DefaultController<Ledg
     @ApiTooManyRequestsResponse({ description: `Too many requests` })
     @ApiForbiddenResponse({ description: `Access forbidden` })
     @ApiOkResponse({ type: LedgerBlockTransactionListDtoResponse })
-    public async executeExtended(@Query({ transform: Paginable.transform }) params: LedgerBlockTransactionListDto): Promise<LedgerBlockTransactionListDtoResponse> {
+    public async executeExtended(
+        @Query({ transform: Paginable.transform }) params: LedgerBlockTransactionListDto
+    ): Promise<LedgerBlockTransactionListDtoResponse> {
         if (_.isNil(params.conditions)) {
             params.conditions = {};
         }
         params.conditions.ledgerId = this.service.ledgerId;
-        return TypeormUtil.toPagination(
-            this.database.ledgerBlockTransaction.createQueryBuilder('item'),
-            params,
-            this.transform
-        );
+        return TypeormUtil.toPagination(this.database.ledgerBlockTransaction.createQueryBuilder('item'), params, this.transform);
     }
 
     protected transform = async (value: LedgerBlockTransactionEntity): Promise<LedgerBlockTransaction> => {

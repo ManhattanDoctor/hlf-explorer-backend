@@ -34,7 +34,7 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     @IsString()
     public channel: string;
 
-    @Column()
+    @Column({ name: 'block_number' })
     @IsNumber()
     public blockNumber: number;
 

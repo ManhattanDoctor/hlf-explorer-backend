@@ -5,13 +5,13 @@ import { IsJSON, IsDefined, IsDate, IsInt, IsNumber, IsOptional, IsString } from
 import { Column, JoinTable, OneToMany, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerEntity } from './LedgerEntity';
 import { Block } from 'fabric-client';
+import { LedgerBlockEventEntity } from './LedgerBlockEventEntity';
 import { LedgerBlockTransactionEntity } from './LedgerBlockTransactionEntity';
 
 @Entity()
 @Index(['hash', 'ledgerId', 'number'])
 @Index(['hash', 'ledgerId'], { unique: true })
 export class LedgerBlockEntity implements LedgerBlock {
-    
     // --------------------------------------------------------------------------
     //
     //  Properties
@@ -60,6 +60,15 @@ export class LedgerBlockEntity implements LedgerBlock {
     )
     @JoinTable()
     public transactions: Array<LedgerBlockTransactionEntity>;
+
+    @Type(() => LedgerBlockEventEntity)
+    @OneToMany(
+        () => LedgerBlockEventEntity,
+        item => item.block,
+        { cascade: true, eager: true }
+    )
+    @JoinTable()
+    public events: Array<LedgerBlockEventEntity>;
 
     // --------------------------------------------------------------------------
     //

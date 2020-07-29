@@ -8,7 +8,6 @@ import { LedgerStateChecker } from './service/LedgerStateChecker';
 import { LedgerBlockParseHandler } from './controller/LedgerBlockParseHandler';
 import { LedgerStateCheckHandler } from './controller/LedgerStateCheckHandler';
 import { LEDGER_SOCKET_NAMESPACE } from '@hlf-explorer/common/api/ledger';
-import { DatabaseModule } from '../../core/database/DatabaseModule';
 import { IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
 import { DatabaseService } from '../../core/database/DatabaseService';
 import { Logger } from '@ts-core/common/logger';

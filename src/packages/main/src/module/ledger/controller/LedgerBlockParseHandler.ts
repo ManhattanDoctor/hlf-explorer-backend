@@ -1,18 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from '@ts-core/common/logger';
-import { Transport, TransportCommandHandler, TransportWaitError } from '@ts-core/common/transport';
+import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
 import { ILedgerBlockParseDto, LedgerBlockParseCommand } from '../../../core/transport/command/LedgerBlockParseCommand';
 import { LedgerBlockEntity } from '../../../core/database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../../core/database/DatabaseService';
 import { LedgerBlockParsedEvent } from '../../../core/transport/event/LedgerBlockParsedEvent';
 import { LedgerApiFactory } from '../service/LedgerApiFactory';
 import { TransportFabricBlockParser } from '@ts-core/blockchain-fabric/transport/block';
-import { LedgerBlockTransaction, LedgerBlock } from '@hlf-explorer/common/ledger';
 import { LedgerBlockTransactionEntity } from '../../../core/database/entity/LedgerBlockTransactionEntity';
-import { ObjectUtil, TransformUtil, ValidateUtil } from '@ts-core/common/util';
+import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
-import { request } from 'http';
 import { ExtendedError } from '@ts-core/common/error';
+import { LedgerBlockEventEntity } from '../../../core/database/entity/LedgerBlockEventEntity';
 
 @Injectable()
 export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBlockParseDto, LedgerBlockParseCommand> {
@@ -48,7 +47,7 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
         block.transactions = parsedBlock.transactions.map(transaction => {
             let item = new LedgerBlockTransactionEntity();
             item.ledgerId = params.ledgerId;
-            
+
             item.block = block;
             item.blockNumber = block.number;
             ObjectUtil.copyProperties(transaction, item);
@@ -67,6 +66,20 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
                 if (!_.isNil(response.response)) {
                     item.responseErrorCode = ExtendedError.instanceOf(response.response) ? response.response.code : null;
                 }
+            }
+            return item;
+        });
+
+        block.events = parsedBlock.events.map(event => {
+            let item = new LedgerBlockEventEntity();
+            item.ledgerId = params.ledgerId;
+
+            item.block = block;
+            item.blockNumber = block.number;
+            ObjectUtil.copyProperties(event, item);
+
+            if (ObjectUtil.hasOwnProperties(item.data, ['name', 'data'])) {
+                item.data = item.data.data;
             }
             return item;
         });

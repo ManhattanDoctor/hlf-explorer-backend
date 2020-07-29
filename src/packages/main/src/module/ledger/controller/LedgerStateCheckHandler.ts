@@ -32,6 +32,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
     protected async execute(params: ILedgerStateCheckDto): Promise<void> {
         let ledger = await this.database.ledger.findOne({ id: params.ledgerId });
         let blockLast = await this.getLastBlockHeight(ledger);
+
         if (_.isNaN(blockLast) || blockLast === 0) {
             throw new ExtendedError(`Last block is incorrect`);
         }
@@ -66,6 +67,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
         );
         let blocks: Array<number> = _.flatten(items).map(item => item.number);
         return blocksToCheck.filter(blockHeight => !blocks.includes(blockHeight));
+        // return blocksToCheck;
     }
 
     protected async getCurrentBlockHeight(ledger: Ledger): Promise<number> {
