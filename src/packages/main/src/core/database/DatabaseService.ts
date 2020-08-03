@@ -8,6 +8,7 @@ import { Ledger } from '@hlf-explorer/common/ledger';
 import * as _ from 'lodash';
 import { ExtendedError } from '@ts-core/common/error';
 import { LedgerBlockTransactionEntity } from './entity/LedgerBlockTransactionEntity';
+import { LedgerBlockEventEntity } from './entity/LedgerBlockEventEntity';
 
 @Injectable()
 export class DatabaseService extends LoggerWrapper {
@@ -71,6 +72,10 @@ export class DatabaseService extends LoggerWrapper {
 
     public get ledgerBlock(): Repository<LedgerBlockEntity> {
         return this.connection.getRepository(LedgerBlockEntity);
+    }
+
+    public get ledgerBlockEvent(): Repository<LedgerBlockEventEntity> {
+        return this.connection.getRepository(LedgerBlockEventEntity);
     }
 
     public get ledgerBlockTransaction(): Repository<LedgerBlockTransactionEntity> {

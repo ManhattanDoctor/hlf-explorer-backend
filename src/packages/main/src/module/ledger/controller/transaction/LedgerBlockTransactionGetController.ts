@@ -8,7 +8,7 @@ import { ILedgerBlockTransactionGetResponse, ILedgerBlockTransactionGetRequest }
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../../core/database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
-import { DateUtil, TransformUtil } from '@ts-core/common/util';
+import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
 import { LedgerService } from '../../service/LedgerService';
 import { Validator } from 'class-validator';
@@ -22,7 +22,7 @@ import { Validator } from 'class-validator';
 export class LedgerBlockTransactionGetRequest implements ILedgerBlockTransactionGetRequest {
     @ApiProperty()
     @IsString()
-    hashOrUid: string;
+    hash: string;
 }
 
 export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactionGetResponse {
@@ -70,15 +70,15 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
     public async execute(@Query() params: LedgerBlockTransactionGetRequest): Promise<LedgerBlockTransactionGetResponse> {
-        if (_.isNil(params.hashOrUid)) {
-            throw new ExtendedError(`Block hash or uid is nil`, HttpStatus.BAD_REQUEST);
+        if (_.isNil(params.hash)) {
+            throw new ExtendedError(`Block hash is nil`, HttpStatus.BAD_REQUEST);
         }
 
         let transaction = await this.cache.wrap<LedgerBlockTransaction>(this.getCacheKey(params), () => this.getTransaction(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
         if (_.isNil(transaction)) {
-            throw new ExtendedError(`Unable to find transaction "${params.hashOrUid}" hash`, HttpStatus.NOT_FOUND);
+            throw new ExtendedError(`Unable to find transaction "${params.hash}" hash`, HttpStatus.NOT_FOUND);
         }
 
         return { value: transaction };
@@ -91,18 +91,11 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
     // --------------------------------------------------------------------------
 
     private getCacheKey(params: ILedgerBlockTransactionGetRequest): string {
-        return `${this.service.ledgerId}:transaction:${params.hashOrUid}`;
+        return `${this.service.ledgerId}:transaction:${params.hash}`;
     }
 
     private async getTransaction(params: ILedgerBlockTransactionGetRequest): Promise<LedgerBlockTransaction> {
-        let conditions: Partial<LedgerBlockTransaction> = { ledgerId: this.service.ledgerId };
-
-        if (this.validator.isUUID(params.hashOrUid)) {
-            conditions.requestId = params.hashOrUid;
-        } else {
-            conditions.hash = params.hashOrUid;
-        }
-
+        let conditions = { ledgerId: this.service.ledgerId, hash: params.hash };
         let item = await this.database.ledgerBlockTransaction.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;
     }

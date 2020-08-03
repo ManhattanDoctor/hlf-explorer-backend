@@ -8,6 +8,8 @@ import { AppSettings } from './AppSettings';
 import { DatabaseModule } from './core/database/DatabaseModule';
 import { LedgerModule } from './module/ledger/LedgerModule';
 import { DatabaseService } from './core/database/DatabaseService';
+import { ITransport, Transport } from '@ts-core/common/transport';
+import { LedgerBlockParseCommand } from './core/transport/command/LedgerBlockParseCommand';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
@@ -43,8 +45,7 @@ export class AppModule implements OnApplicationBootstrap {
     //
     // --------------------------------------------------------------------------
 
-    public constructor(@Inject(Logger) private logger: Logger, private settings: AppSettings) {
-    }
+    public constructor(@Inject(Logger) private logger: Logger, private transport: Transport) {}
 
     // --------------------------------------------------------------------------
     //
@@ -52,5 +53,7 @@ export class AppModule implements OnApplicationBootstrap {
     //
     // --------------------------------------------------------------------------
 
-    public async onApplicationBootstrap(): Promise<void> {}
+    public async onApplicationBootstrap(): Promise<void> {
+        // this.transport.send(new LedgerBlockParseCommand({ ledgerId: 1, number: 1 }));
+    }
 }

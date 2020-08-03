@@ -1,7 +1,7 @@
-import { LedgerBlock, LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { Transform, Exclude, Type } from 'class-transformer';
-import { IsJSON, IsDefined, IsDate, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { LedgerBlock } from '@hlf-explorer/common/ledger';
+import { ObjectUtil } from '@ts-core/common/util';
+import { Exclude, Type } from 'class-transformer';
+import { IsDefined, IsUUID, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, JoinTable, OneToMany, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerEntity } from './LedgerEntity';
 import { Block } from 'fabric-client';
@@ -9,8 +9,8 @@ import { LedgerBlockEventEntity } from './LedgerBlockEventEntity';
 import { LedgerBlockTransactionEntity } from './LedgerBlockTransactionEntity';
 
 @Entity()
-@Index(['hash', 'ledgerId', 'number'])
-@Index(['hash', 'ledgerId'], { unique: true })
+@Index(['uid', 'hash', 'number', 'ledgerId'])
+@Index(['uid', 'ledgerId'], { unique: true })
 export class LedgerBlockEntity implements LedgerBlock {
     // --------------------------------------------------------------------------
     //
@@ -23,6 +23,10 @@ export class LedgerBlockEntity implements LedgerBlock {
     @IsOptional()
     @IsNumber()
     public id: number;
+
+    @Column()
+    @IsUUID()
+    public uid: string;
 
     @Column()
     @IsString()
@@ -41,17 +45,6 @@ export class LedgerBlockEntity implements LedgerBlock {
     @IsDefined()
     public rawData: Block;
 
-    @Column({ name: 'ledger_id' })
-    @IsNumber()
-    public ledgerId: number;
-
-    @ManyToOne(
-        () => LedgerEntity,
-        item => item.blocksEntity
-    )
-    @JoinColumn({ name: 'ledger_id' })
-    public ledger: LedgerEntity;
-
     @Type(() => LedgerBlockTransactionEntity)
     @OneToMany(
         () => LedgerBlockTransactionEntity,
@@ -69,6 +62,17 @@ export class LedgerBlockEntity implements LedgerBlock {
     )
     @JoinTable()
     public events: Array<LedgerBlockEventEntity>;
+
+    @Column({ name: 'ledger_id' })
+    @IsNumber()
+    public ledgerId: number;
+
+    @ManyToOne(
+        () => LedgerEntity,
+        item => item.blocksEntity
+    )
+    @JoinColumn({ name: 'ledger_id' })
+    public ledger: LedgerEntity;
 
     // --------------------------------------------------------------------------
     //

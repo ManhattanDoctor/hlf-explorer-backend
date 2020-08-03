@@ -14,12 +14,12 @@ import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common/dto';
 import { Logger } from '@ts-core/common/logger';
 import { IsOptional, IsString } from 'class-validator';
-import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
+import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { DatabaseService } from '../../../../core/database/DatabaseService';
 import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { LedgerService } from '../../service/LedgerService';
 import * as _ from 'lodash';
-import { LedgerBlockTransactionEntity } from '../../../../core/database/entity/LedgerBlockTransactionEntity';
+import { LedgerBlockEventEntity } from '../../../../core/database/entity/LedgerBlockEventEntity';
 
 // --------------------------------------------------------------------------
 //
@@ -27,12 +27,12 @@ import { LedgerBlockTransactionEntity } from '../../../../core/database/entity/L
 //
 // --------------------------------------------------------------------------
 
-export class LedgerBlockTransactionListDto implements Paginable<LedgerBlockTransaction> {
+export class LedgerBlockEventListDto implements Paginable<LedgerBlockEvent> {
     @ApiPropertyOptional()
-    conditions?: FilterableConditions<LedgerBlockTransaction>;
+    conditions?: FilterableConditions<LedgerBlockEvent>;
 
     @ApiPropertyOptional()
-    sort?: FilterableSort<LedgerBlockTransaction>;
+    sort?: FilterableSort<LedgerBlockEvent>;
 
     @ApiPropertyOptional({ default: Paginable.DEFAULT_PAGE_SIZE })
     pageSize: number;
@@ -46,7 +46,7 @@ export class LedgerBlockTransactionListDto implements Paginable<LedgerBlockTrans
     traceId?: string;
 }
 
-export class LedgerBlockTransactionListDtoResponse implements IPagination<LedgerBlockTransaction> {
+export class LedgerBlockEventListDtoResponse implements IPagination<LedgerBlockEvent> {
     @ApiProperty()
     pageSize: number;
 
@@ -59,8 +59,8 @@ export class LedgerBlockTransactionListDtoResponse implements IPagination<Ledger
     @ApiProperty()
     total: number;
 
-    @ApiProperty({ isArray: true, type: LedgerBlockTransaction })
-    items: Array<LedgerBlockTransaction>;
+    @ApiProperty({ isArray: true, type: LedgerBlockEvent })
+    items: Array<LedgerBlockEvent>;
 }
 
 // --------------------------------------------------------------------------
@@ -69,8 +69,8 @@ export class LedgerBlockTransactionListDtoResponse implements IPagination<Ledger
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/transactions')
-export class LedgerBlockTransactionListController extends DefaultController<LedgerBlockTransactionListDto, LedgerBlockTransactionListDtoResponse> {
+@Controller('api/ledger/events')
+export class LedgerBlockEventListController extends DefaultController<LedgerBlockEventListDto, LedgerBlockEventListDtoResponse> {
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -88,24 +88,21 @@ export class LedgerBlockTransactionListController extends DefaultController<Ledg
     // --------------------------------------------------------------------------
 
     @Get()
-    @ApiOperation({ summary: `Ledger transactions list` })
+    @ApiOperation({ summary: `Ledger events list` })
     @ApiHeader({ name: `x-token`, description: `Authorization token`, required: true })
     @ApiUnauthorizedResponse({ description: `Authorization failed` })
     @ApiTooManyRequestsResponse({ description: `Too many requests` })
     @ApiForbiddenResponse({ description: `Access forbidden` })
-    @ApiOkResponse({ type: LedgerBlockTransactionListDtoResponse })
-    public async executeExtended(
-        @Query({ transform: Paginable.transform }) params: LedgerBlockTransactionListDto
-    ): Promise<LedgerBlockTransactionListDtoResponse> {
+    @ApiOkResponse({ type: LedgerBlockEventListDtoResponse })
+    public async executeExtended(@Query({ transform: Paginable.transform }) params: LedgerBlockEventListDto): Promise<LedgerBlockEventListDtoResponse> {
         if (_.isNil(params.conditions)) {
             params.conditions = {};
         }
         ObjectUtil.copyProperties({ ledgerId: this.service.ledgerId }, params.conditions);
-        
-        return TypeormUtil.toPagination(this.database.ledgerBlockTransaction.createQueryBuilder('item'), params, this.transform);
+        return TypeormUtil.toPagination(this.database.ledgerBlockEvent.createQueryBuilder('item'), params, this.transform);
     }
 
-    protected transform = async (value: LedgerBlockTransactionEntity): Promise<LedgerBlockTransaction> => {
+    protected transform = async (value: LedgerBlockEventEntity): Promise<LedgerBlockEvent> => {
         let item = TransformUtil.fromClass(value);
         item.rawData = null;
         return item;

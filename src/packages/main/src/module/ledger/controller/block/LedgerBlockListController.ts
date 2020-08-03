@@ -18,7 +18,7 @@ import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
 import { LedgerBlockEntity } from '../../../../core/database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../../../core/database/DatabaseService';
-import { TransformUtil } from '@ts-core/common/util';
+import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { LedgerService } from '../../service/LedgerService';
 import * as _ from 'lodash';
 
@@ -99,7 +99,8 @@ export class LedgerBlockListController extends DefaultController<LedgerBlockList
         if (_.isNil(params.conditions)) {
             params.conditions = {};
         }
-        params.conditions.ledgerId = this.service.ledgerId;
+        ObjectUtil.copyProperties({ ledgerId: this.service.ledgerId }, params.conditions);
+
         return TypeormUtil.toPagination(
             this.database.ledgerBlock.createQueryBuilder('item').innerJoinAndSelect('item.transactions', 'transactions'),
             params,

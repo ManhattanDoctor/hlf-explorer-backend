@@ -14,6 +14,8 @@ import { Logger } from '@ts-core/common/logger';
 import { LedgerBlockTransactionGetController } from './controller/transaction/LedgerBlockTransactionGetController';
 import { LedgerBlockTransactionListController } from './controller/transaction/LedgerBlockTransactionListController';
 import { LedgerSearchController } from './controller/LedgerSearchController';
+import { LedgerBlockEventGetController } from './controller/event/LedgerBlockEventGetController';
+import { LedgerBlockEventListController } from './controller/event/LedgerBlockEventListController';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -51,6 +53,8 @@ export class LedgerModule {
                 LedgerSearchController,
                 LedgerBlockGetController,
                 LedgerBlockListController,
+                LedgerBlockEventGetController,
+                LedgerBlockEventListController,
                 LedgerBlockTransactionGetController,
                 LedgerBlockTransactionListController
             ],

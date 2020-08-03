@@ -52,7 +52,10 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
 
     private async getBlocks(ledgerId: number): Promise<Array<LedgerBlock>> {
         let blocks = await TypeormUtil.toPagination(
-            this.database.ledgerBlock.createQueryBuilder('item').innerJoinAndSelect('item.transactions', 'transactions'),
+            this.database.ledgerBlock
+                .createQueryBuilder('item')
+                .innerJoinAndSelect('item.transactions', 'transactions')
+                .innerJoinAndSelect('item.events', 'events'),
             {
                 pageIndex: 0,
                 pageSize: LedgerBlocksLast.MAX_LENGTH,

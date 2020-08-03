@@ -8,6 +8,7 @@ import { ILedgerSearchRequest, ILedgerSearchResponse } from '@hlf-explorer/commo
 import * as _ from 'lodash';
 import { ExtendedError } from '@ts-core/common/error';
 import { ServerResponse } from 'http';
+import { Validator } from 'class-validator';
 
 // --------------------------------------------------------------------------
 //
@@ -37,12 +38,21 @@ export class LedgerSearchResponse implements ILedgerSearchResponse {
 export class LedgerSearchController extends DefaultController<LedgerSearchRequest, LedgerSearchResponse> {
     // --------------------------------------------------------------------------
     //
+    //  Properties
+    //
+    // --------------------------------------------------------------------------
+
+    private validator: Validator;
+
+    // --------------------------------------------------------------------------
+    //
     //  Constructor
     //
     // --------------------------------------------------------------------------
 
     constructor(logger: Logger) {
         super(logger);
+        this.validator = new Validator();
     }
 
     // --------------------------------------------------------------------------
@@ -57,10 +67,18 @@ export class LedgerSearchController extends DefaultController<LedgerSearchReques
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
     public async executeExtended(@Query() params: LedgerSearchRequest, @Res() response): Promise<LedgerSearchResponse> {
-        if (_.isNil(params.query)) {
+        let value = _.trim(params.query);
+        if (_.isNil(value)) {
             throw new ExtendedError(`Query is nil`, HttpStatus.BAD_REQUEST);
         }
-        let url = !_.isNaN(Number(params.query)) ? `block?numberOrHash=${params.query}` : `transaction?hashOrUid=${params.query}`;
+        let url = null;
+        if (this.validator.isUUID(value)) {
+            url = `event?uid=${value}`;
+        } else if (!_.isNaN(Number(value))) {
+            url = `block?hashOrNumber=${value}`;
+        } else {
+            url = `transaction?hashOrUid=${value}`;
+        }
         return response.redirect(url);
     }
 }

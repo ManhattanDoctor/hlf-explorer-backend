@@ -1,16 +1,17 @@
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Param, HttpStatus, Body, Inject, CACHE_MANAGER, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsDefined } from 'class-validator';
-import { LedgerBlock } from '@hlf-explorer/common/ledger';
-import { ILedgerBlockGetResponse, ILedgerBlockGetRequest } from '@hlf-explorer/common/api/ledger/block';
+import { LedgerBlock, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
+import { ILedgerBlockEventGetResponse, ILedgerBlockEventGetRequest } from '@hlf-explorer/common/api/ledger/event';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../../core/database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
 import { LedgerService } from '../../service/LedgerService';
+import { IsUUID, Validator } from 'class-validator';
 
 // --------------------------------------------------------------------------
 //
@@ -18,16 +19,16 @@ import { LedgerService } from '../../service/LedgerService';
 //
 // --------------------------------------------------------------------------
 
-export class LedgerBlockGetRequest implements ILedgerBlockGetRequest {
+export class LedgerBlockEventGetRequest implements ILedgerBlockEventGetRequest {
     @ApiProperty()
-    @IsDefined()
-    hashOrNumber: number | string;
+    @IsUUID()
+    uid: string;
 }
 
-export class LedgerBlockGetResponse implements ILedgerBlockGetResponse {
+export class LedgerBlockEventGetResponse implements ILedgerBlockEventGetResponse {
     @ApiProperty()
     @IsDefined()
-    value: LedgerBlock;
+    value: LedgerBlockEvent;
 }
 
 // --------------------------------------------------------------------------
@@ -36,8 +37,16 @@ export class LedgerBlockGetResponse implements ILedgerBlockGetResponse {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/block')
-export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRequest, LedgerBlockGetResponse> {
+@Controller('api/ledger/event')
+export class LedgerBlockEventGetController extends DefaultController<LedgerBlockEventGetRequest, LedgerBlockEventGetResponse> {
+    // --------------------------------------------------------------------------
+    //
+    //  Properties
+    //
+    // --------------------------------------------------------------------------
+
+    private validator: Validator;
+
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -46,6 +55,7 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
 
     constructor(logger: Logger, private database: DatabaseService, private service: LedgerService, private cache: Cache) {
         super(logger);
+        this.validator = new Validator();
     }
 
     // --------------------------------------------------------------------------
@@ -55,24 +65,18 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
     // --------------------------------------------------------------------------
 
     @Get()
-    @ApiOperation({ summary: `Get ledger block by number or hash` })
+    @ApiOperation({ summary: `Get block event by uid` })
     @ApiNotFoundResponse({ description: `Not found` })
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
-    public async execute(@Query() params: LedgerBlockGetRequest): Promise<LedgerBlockGetResponse> {
-        console.log('block', params);
-        if (_.isNil(params.hashOrNumber)) {
-            throw new ExtendedError(`Block hash or number is nil`, HttpStatus.BAD_REQUEST);
-        }
-
-        let block = await this.cache.wrap<LedgerBlock>(this.getCacheKey(params), () => this.getBlock(params), {
+    public async execute(@Query() params: LedgerBlockEventGetRequest): Promise<LedgerBlockEventGetResponse> {
+        let event = await this.cache.wrap<LedgerBlockEvent>(this.getCacheKey(params), () => this.getEvent(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
-        if (_.isNil(block)) {
-            throw new ExtendedError(`Unable to find block "${params.hashOrNumber}" hash or number`, HttpStatus.NOT_FOUND);
+        if (_.isNil(event)) {
+            throw new ExtendedError(`Unable to find event "${params.uid}" uid`, HttpStatus.NOT_FOUND);
         }
-
-        return { value: block };
+        return { value: event };
     }
 
     // --------------------------------------------------------------------------
@@ -81,18 +85,13 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
     //
     // --------------------------------------------------------------------------
 
-    private getCacheKey(params: ILedgerBlockGetRequest): string {
-        return `${this.service.ledgerId}:block:${params.hashOrNumber}`;
+    private getCacheKey(params: ILedgerBlockEventGetRequest): string {
+        return `${this.service.ledgerId}:event:${params.uid}`;
     }
 
-    private async getBlock(params: ILedgerBlockGetRequest): Promise<LedgerBlock> {
-        let conditions = { ledgerId: this.service.ledgerId } as any;
-        if (!_.isNaN(Number(params.hashOrNumber))) {
-            conditions.number = Number(params.hashOrNumber);
-        } else {
-            conditions.hash = params.hashOrNumber.toString();
-        }
-        let item = await this.database.ledgerBlock.findOne(conditions);
+    private async getEvent(params: ILedgerBlockEventGetRequest): Promise<LedgerBlockEvent> {
+        let conditions = { ledgerId: this.service.ledgerId, uid: params.uid };
+        let item = await this.database.ledgerBlockEvent.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;
     }
 }

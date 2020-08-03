@@ -1,12 +1,13 @@
 import { ObjectUtil } from '@ts-core/common/util';
 import { Exclude, Type } from 'class-transformer';
-import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsUUID, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 
 @Entity()
-// @Index(['transactionHash', 'blockId', 'blockNumber', 'ledgerId', 'name'])
+@Index(['uid', 'blockId', 'ledgerId', 'name'])
+@Index(['uid', 'ledgerId'], { unique: true })
 export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {
     // --------------------------------------------------------------------------
     //
@@ -21,6 +22,11 @@ export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {
     public id: number;
 
     @Column()
+    @IsUUID()
+    public uid: string;
+
+    @Column({ nullable: true })
+    @IsOptional()
     @IsString()
     public name: string;
 
@@ -32,7 +38,8 @@ export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {
     @IsString()
     public channel: string;
 
-    @Column()
+    @Column({ nullable: true })
+    @IsOptional()
     @IsString()
     public chaincode: string;
 
@@ -58,10 +65,12 @@ export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {
     @JoinColumn({ name: 'block_id' })
     public block: LedgerBlockEntity;
 
+    @Exclude()
     @Column({ name: 'block_id' })
     @IsNumber()
     public blockId: number;
 
+    @Exclude()
     @Column({ name: 'ledger_id' })
     @IsNumber()
     public ledgerId: number;

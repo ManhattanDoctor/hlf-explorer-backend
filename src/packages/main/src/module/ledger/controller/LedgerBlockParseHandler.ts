@@ -6,12 +6,14 @@ import { LedgerBlockEntity } from '../../../core/database/entity/LeggerBlockEnti
 import { DatabaseService } from '../../../core/database/DatabaseService';
 import { LedgerBlockParsedEvent } from '../../../core/transport/event/LedgerBlockParsedEvent';
 import { LedgerApiFactory } from '../service/LedgerApiFactory';
-import { TransportFabricBlockParser } from '@ts-core/blockchain-fabric/transport/block';
+import { TransportFabricBlockParser, ITransportFabricTransaction, ITransportFabricEvent } from '@ts-core/blockchain-fabric/transport/block';
 import { LedgerBlockTransactionEntity } from '../../../core/database/entity/LedgerBlockTransactionEntity';
 import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
+import * as uuid from 'uuid';
 import { ExtendedError } from '@ts-core/common/error';
 import { LedgerBlockEventEntity } from '../../../core/database/entity/LedgerBlockEventEntity';
+import { LedgerBlock } from '@hlf-explorer/common/ledger';
 
 @Injectable()
 export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBlockParseDto, LedgerBlockParseCommand> {
@@ -39,68 +41,61 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
         let rawBlock = await api.getBlock(params.number);
         let parsedBlock = parser.parse(rawBlock);
 
-        let block = new LedgerBlockEntity();
-        block.rawData = rawBlock;
-        block.ledgerId = params.ledgerId;
-        ObjectUtil.copyProperties(parsedBlock, block, ['hash', 'number', 'createdDate']);
+        let item = new LedgerBlockEntity();
+        item.ledgerId = params.ledgerId;
 
-        block.transactions = parsedBlock.transactions.map(transaction => {
-            let item = new LedgerBlockTransactionEntity();
-            item.ledgerId = params.ledgerId;
+        item.uid = uuid();
+        item.rawData = rawBlock;
+        ObjectUtil.copyProperties(parsedBlock, item, ['hash', 'number', 'createdDate']);
 
-            item.block = block;
-            item.blockNumber = block.number;
-            ObjectUtil.copyProperties(transaction, item);
+        item.events = parsedBlock.events.map(event => this.parseEvent(params.ledgerId, item, event));
+        item.transactions = parsedBlock.transactions.map(transaction => this.parseTransaction(params.ledgerId, item, transaction));
 
-            let request = item.request;
-            if (!_.isNil(request)) {
-                item.requestId = request.id;
-                item.requestName = request.name;
-                if (!_.isNil(request.options)) {
-                    item.requestUserId = request.options.userId;
-                }
-            }
-
-            let response = item.response;
-            if (!_.isNil(response)) {
-                if (!_.isNil(response.response)) {
-                    item.responseErrorCode = ExtendedError.instanceOf(response.response) ? response.response.code : null;
-                }
-            }
-            return item;
-        });
-
-        block.events = parsedBlock.events.map(event => {
-            let item = new LedgerBlockEventEntity();
-            item.ledgerId = params.ledgerId;
-
-            item.block = block;
-            item.blockNumber = block.number;
-            ObjectUtil.copyProperties(event, item);
-
-            if (ObjectUtil.hasOwnProperties(item.data, ['name', 'data'])) {
-                item.data = item.data.data;
-            }
-            return item;
-        });
-
-        await this.database.ledgerBlockSave(block);
-        await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: block.number });
+        await this.database.ledgerBlockSave(item);
+        await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: item.number });
 
         // Have to use TransformUtil here
-        this.transport.dispatch(new LedgerBlockParsedEvent({ ledgerId: params.ledgerId, block: TransformUtil.fromClass(block) }));
+        this.transport.dispatch(new LedgerBlockParsedEvent({ ledgerId: params.ledgerId, block: TransformUtil.fromClass(item) }));
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //  Private Methods
-    //
-    // --------------------------------------------------------------------------
+    private parseEvent = (ledgerId: number, block: LedgerBlockEntity, event: ITransportFabricEvent) => {
+        let item = new LedgerBlockEventEntity();
+        item.ledgerId = ledgerId;
 
-    protected handleError(command: LedgerBlockParseCommand, error: Error): void {
-        // this.error(`Error to parse block ${command.request.number}`);
-        // this.error(error);
-        // super.handleError(command, new TransportWaitError(error.message));
-        super.handleError(command, error);
-    }
+        item.uid = uuid();
+        item.block = block;
+        item.blockNumber = block.number;
+
+        if (ObjectUtil.hasOwnProperties(event.data, ['name', 'data']) && event.name === event.data.name) {
+            ObjectUtil.copyProperties({ data: event.data }, event);
+        }
+        ObjectUtil.copyProperties(event, item);
+
+        return item;
+    };
+
+    private parseTransaction = (ledgerId: number, block: LedgerBlockEntity, transaction: ITransportFabricTransaction) => {
+        let item = new LedgerBlockTransactionEntity();
+        item.ledgerId = ledgerId;
+
+        item.uid = uuid();
+        item.block = block;
+        item.blockNumber = block.number;
+        ObjectUtil.copyProperties(transaction, item);
+
+        let request = item.request;
+        if (!_.isNil(request)) {
+            item.requestId = request.id;
+            item.requestName = request.name;
+            if (!_.isNil(request.options)) {
+                item.requestUserId = request.options.userId;
+            }
+        }
+
+        let response = item.response;
+        if (!_.isNil(response) && !_.isNil(response.response)) {
+            item.responseErrorCode = ExtendedError.instanceOf(response.response) ? response.response.code : null;
+        }
+        return item;
+    };
 }

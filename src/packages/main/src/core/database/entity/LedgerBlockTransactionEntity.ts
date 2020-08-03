@@ -1,7 +1,6 @@
-import { LedgerBlock } from '@hlf-explorer/common/ledger';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
+import { ObjectUtil } from '@ts-core/common/util';
 import { Exclude, Type } from 'class-transformer';
-import { IsEnum, IsDefined, IsUUID, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsUUID, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ITransportFabricTransactionChaincode } from '@ts-core/blockchain-fabric/transport/block';
 import { ITransportFabricRequestPayload } from '@ts-core/blockchain-fabric/transport/TransportFabricRequestPayload';
@@ -11,8 +10,8 @@ import { LedgerBlockEntity } from './LeggerBlockEntity';
 import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
 
 @Entity()
-@Index(['hash', 'blockId', 'blockNumber', 'ledgerId', 'requestId', 'requestUserId'])
-@Index(['hash', 'blockId'], { unique: true })
+@Index(['hash', 'blockId', 'requestId', 'requestUserId', 'ledgerId'])
+@Index(['uid', 'ledgerId'], { unique: true })
 export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     // --------------------------------------------------------------------------
     //
@@ -27,17 +26,21 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     public id: number;
 
     @Column()
+    @IsUUID()
+    public uid: string;
+
+    @Column()
     @IsString()
     public hash: string;
 
     @Column()
     @IsString()
     public channel: string;
-
+    
     @Column({ name: 'block_number' })
     @IsNumber()
     public blockNumber: number;
-
+    
     @Column({ name: 'created_date' })
     @IsDate()
     @Type(() => Date)
@@ -87,10 +90,12 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     @JoinColumn({ name: 'block_id' })
     public block: LedgerBlockEntity;
 
+    @Exclude()
     @Column({ name: 'block_id' })
     @IsNumber()
     public blockId: number;
 
+    @Exclude()
     @Column({ name: 'ledger_id' })
     @IsNumber()
     public ledgerId: number;
