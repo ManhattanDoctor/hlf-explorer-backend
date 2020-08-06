@@ -14,8 +14,8 @@ import { AppSettings } from './src/AppSettings';
 
 async function generateDocs(application: INestApplication): Promise<void> {
     let options = new DocumentBuilder()
-        .setTitle('HLF Explorere API')
-        .setDescription('The hlf explorer API description')
+        .setTitle('HLF Explorer API')
+        .setDescription('The HLF explorer API description')
         .setVersion('1.0')
         .addTag('hlf-explorer')
         .build();

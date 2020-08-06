@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Logger } from '@ts-core/common/logger';
 import { TraceUtil } from '@ts-core/common/trace';
 import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
-import { LedgerStateCheckCommand, ILedgerStateCheckDto } from '../../../core/transport/command/LedgerStateCheckCommand';
-import { DatabaseService } from '../../../core/database/DatabaseService';
+import { LedgerStateCheckCommand, ILedgerStateCheckDto } from '../transport/command/LedgerStateCheckCommand';
+import { DatabaseService } from '../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import * as _ from 'lodash';
 import { Ledger } from '@hlf-explorer/common/ledger';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
-import { LedgerBlockParseCommand } from '../../../core/transport/command/LedgerBlockParseCommand';
+import { LedgerBlockParseCommand } from '../transport/command/LedgerBlockParseCommand';
 import { LedgerApiFactory } from '../service/LedgerApiFactory';
 
 @Injectable()

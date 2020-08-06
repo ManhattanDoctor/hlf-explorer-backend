@@ -6,7 +6,7 @@ import { IsDefined, IsNumberString, IsString } from 'class-validator';
 import { LedgerBlock, LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockTransactionGetResponse, ILedgerBlockTransactionGetRequest } from '@hlf-explorer/common/api/ledger/transaction';
 import * as _ from 'lodash';
-import { DatabaseService } from '../../../../core/database/DatabaseService';
+import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
@@ -74,7 +74,7 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
             throw new ExtendedError(`Block hash is nil`, HttpStatus.BAD_REQUEST);
         }
 
-        let transaction = await this.cache.wrap<LedgerBlockTransaction>(this.getCacheKey(params), () => this.getTransaction(params), {
+        let transaction = await this.cache.wrap<LedgerBlockTransaction>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
         if (_.isNil(transaction)) {
@@ -94,7 +94,7 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
         return `${this.service.ledgerId}:transaction:${params.hash}`;
     }
 
-    private async getTransaction(params: ILedgerBlockTransactionGetRequest): Promise<LedgerBlockTransaction> {
+    private async getItem(params: ILedgerBlockTransactionGetRequest): Promise<LedgerBlockTransaction> {
         let conditions = { ledgerId: this.service.ledgerId, hash: params.hash };
         let item = await this.database.ledgerBlockTransaction.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;

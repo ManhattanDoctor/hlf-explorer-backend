@@ -6,7 +6,7 @@ import { IsDefined } from 'class-validator';
 import { LedgerBlock, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockEventGetResponse, ILedgerBlockEventGetRequest } from '@hlf-explorer/common/api/ledger/event';
 import * as _ from 'lodash';
-import { DatabaseService } from '../../../../core/database/DatabaseService';
+import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
@@ -70,7 +70,7 @@ export class LedgerBlockEventGetController extends DefaultController<LedgerBlock
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
     public async execute(@Query() params: LedgerBlockEventGetRequest): Promise<LedgerBlockEventGetResponse> {
-        let event = await this.cache.wrap<LedgerBlockEvent>(this.getCacheKey(params), () => this.getEvent(params), {
+        let event = await this.cache.wrap<LedgerBlockEvent>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
         if (_.isNil(event)) {
@@ -89,7 +89,7 @@ export class LedgerBlockEventGetController extends DefaultController<LedgerBlock
         return `${this.service.ledgerId}:event:${params.uid}`;
     }
 
-    private async getEvent(params: ILedgerBlockEventGetRequest): Promise<LedgerBlockEvent> {
+    private async getItem(params: ILedgerBlockEventGetRequest): Promise<LedgerBlockEvent> {
         let conditions = { ledgerId: this.service.ledgerId, uid: params.uid };
         let item = await this.database.ledgerBlockEvent.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;

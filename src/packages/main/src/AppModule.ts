@@ -2,14 +2,11 @@ import { DynamicModule, HttpModule, Inject, Logger, OnApplicationBootstrap } fro
 import { LoggerModule } from '@ts-core/backend-nestjs/logger';
 import { CacheModule } from '@ts-core/backend-nestjs/cache';
 import { TransportModule, TransportType } from '@ts-core/backend-nestjs/transport';
-import { LEDGER_SOCKET_NAMESPACE } from '@hlf-explorer/common/api/ledger';
 import MemoryStore from 'cache-manager-memory-store';
 import { AppSettings } from './AppSettings';
-import { DatabaseModule } from './core/database/DatabaseModule';
+import { DatabaseModule } from './module/database/DatabaseModule';
 import { LedgerModule } from './module/ledger/LedgerModule';
-import { DatabaseService } from './core/database/DatabaseService';
-import { ITransport, Transport } from '@ts-core/common/transport';
-import { LedgerBlockParseCommand } from './core/transport/command/LedgerBlockParseCommand';
+import { Transport } from '@ts-core/common/transport';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------

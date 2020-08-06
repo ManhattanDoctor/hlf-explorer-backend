@@ -49,7 +49,7 @@ export class AppSettings extends EnvSettingsStorage implements IFabricApiSetting
     // --------------------------------------------------------------------------
 
     public get webPort(): number {
-        return this.getValue('WEB_PORT', 3000);
+        return this.getValue('WEB_PORT', 3001);
     }
 
     public get webHost(): string {

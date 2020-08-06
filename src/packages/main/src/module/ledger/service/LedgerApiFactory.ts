@@ -1,6 +1,6 @@
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
 import { FabricApi, IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
-import { DatabaseService } from '../../../core/database/DatabaseService';
+import { DatabaseService } from '../../database/DatabaseService';
 
 export class LedgerApiFactory extends LoggerWrapper {
     // --------------------------------------------------------------------------

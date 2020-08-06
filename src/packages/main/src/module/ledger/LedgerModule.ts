@@ -9,13 +9,15 @@ import { LedgerBlockParseHandler } from './controller/LedgerBlockParseHandler';
 import { LedgerStateCheckHandler } from './controller/LedgerStateCheckHandler';
 import { LEDGER_SOCKET_NAMESPACE } from '@hlf-explorer/common/api/ledger';
 import { IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
-import { DatabaseService } from '../../core/database/DatabaseService';
+import { DatabaseService } from '../database/DatabaseService';
 import { Logger } from '@ts-core/common/logger';
 import { LedgerBlockTransactionGetController } from './controller/transaction/LedgerBlockTransactionGetController';
 import { LedgerBlockTransactionListController } from './controller/transaction/LedgerBlockTransactionListController';
 import { LedgerSearchController } from './controller/LedgerSearchController';
 import { LedgerBlockEventGetController } from './controller/event/LedgerBlockEventGetController';
 import { LedgerBlockEventListController } from './controller/event/LedgerBlockEventListController';
+import { LedgerInfoGetController } from './controller/info/LedgerInfoGetController';
+import { LedgerInfoListController } from './controller/info/LedgerInfoListController';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -43,7 +45,6 @@ export class LedgerModule {
 
             LedgerService,
             LedgerMonitorService,
-            LedgerStateChecker,
             LedgerBlockParseHandler,
             LedgerStateCheckHandler
         ];
@@ -51,6 +52,8 @@ export class LedgerModule {
             module: LedgerModule,
             controllers: [
                 LedgerSearchController,
+                LedgerInfoGetController,
+                LedgerInfoListController,
                 LedgerBlockGetController,
                 LedgerBlockListController,
                 LedgerBlockEventGetController,

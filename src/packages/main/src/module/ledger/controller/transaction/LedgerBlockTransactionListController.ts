@@ -15,11 +15,11 @@ import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@t
 import { Logger } from '@ts-core/common/logger';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
-import { DatabaseService } from '../../../../core/database/DatabaseService';
+import { DatabaseService } from '../../../database/DatabaseService';
 import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { LedgerService } from '../../service/LedgerService';
 import * as _ from 'lodash';
-import { LedgerBlockTransactionEntity } from '../../../../core/database/entity/LedgerBlockTransactionEntity';
+import { LedgerBlockTransactionEntity } from '../../../database/entity/LedgerBlockTransactionEntity';
 
 // --------------------------------------------------------------------------
 //

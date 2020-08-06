@@ -6,7 +6,7 @@ import { IsDefined } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockGetResponse, ILedgerBlockGetRequest } from '@hlf-explorer/common/api/ledger/block';
 import * as _ from 'lodash';
-import { DatabaseService } from '../../../../core/database/DatabaseService';
+import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
@@ -60,12 +60,11 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
     public async execute(@Query() params: LedgerBlockGetRequest): Promise<LedgerBlockGetResponse> {
-        console.log('block', params);
         if (_.isNil(params.hashOrNumber)) {
             throw new ExtendedError(`Block hash or number is nil`, HttpStatus.BAD_REQUEST);
         }
 
-        let block = await this.cache.wrap<LedgerBlock>(this.getCacheKey(params), () => this.getBlock(params), {
+        let block = await this.cache.wrap<LedgerBlock>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
         if (_.isNil(block)) {
@@ -85,7 +84,7 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
         return `${this.service.ledgerId}:block:${params.hashOrNumber}`;
     }
 
-    private async getBlock(params: ILedgerBlockGetRequest): Promise<LedgerBlock> {
+    private async getItem(params: ILedgerBlockGetRequest): Promise<LedgerBlock> {
         let conditions = { ledgerId: this.service.ledgerId } as any;
         if (!_.isNaN(Number(params.hashOrNumber))) {
             conditions.number = Number(params.hashOrNumber);

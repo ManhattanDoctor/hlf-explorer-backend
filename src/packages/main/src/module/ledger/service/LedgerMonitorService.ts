@@ -6,9 +6,9 @@ import * as _ from 'lodash';
 import { Namespace, Socket } from 'socket.io';
 import { LedgerInfo, LedgerBlock, Ledger, LedgerBlocksLast } from '@hlf-explorer/common/ledger';
 import { LEDGER_SOCKET_NAMESPACE, LedgerSocketEvent } from '@hlf-explorer/common/api/ledger';
-import { DatabaseService } from '../../../core/database/DatabaseService';
+import { DatabaseService } from '../../database/DatabaseService';
 import { Transport } from '@ts-core/common/transport';
-import { LedgerBlockParsedEvent, ILedgerBlockParsedDto } from '../../../core/transport/event/LedgerBlockParsedEvent';
+import { LedgerBlockParsedEvent, ILedgerBlockParsedDto } from '../transport/event/LedgerBlockParsedEvent';
 import { ExtendedError } from '@ts-core/common/error';
 import { TransformUtil } from '@ts-core/common/util';
 
@@ -94,11 +94,20 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
         let block = TransformUtil.toClass(LedgerBlock, event.block);
         item.blockLast = block;
         item.blocksLast.add(block);
-        this.namespace.emit(LedgerSocketEvent.LEDGER_UPDATED, { id: item.id, blockLast: event.block });
+        this.namespace.emit(LedgerSocketEvent.LEDGER_UPDATED, { id: item.id, name: item.name, blockLast: event.block });
     }
 
     public getInfo(ledgerId: number): LedgerInfo {
         return this.items.get(ledgerId.toString());
+    }
+
+    public getInfoByName(name: string): LedgerInfo {
+        for (let item of this.items.collection) {
+            if (item.name === name) {
+                return item;
+            }
+        }
+        return null;
     }
 
     // --------------------------------------------------------------------------
@@ -114,9 +123,6 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
 
     public async handleConnection(client: Socket): Promise<any> {
         try {
-            // await this.guard.check(client);
-            // console.log(LedgerInfo.fromClass(this.items.getFirst()));
-            // console.log(this.items.getFirst().blocksLast.collection);
             client.emit(LedgerSocketEvent.LEDGERS, TransformUtil.fromClassMany(this.items.collection));
         } catch (error) {
             client.emit(LedgerSocketEvent.EXCEPTION, ExtendedError.create(error));

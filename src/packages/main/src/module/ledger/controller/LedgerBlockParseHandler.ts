@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from '@ts-core/common/logger';
 import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
-import { ILedgerBlockParseDto, LedgerBlockParseCommand } from '../../../core/transport/command/LedgerBlockParseCommand';
-import { LedgerBlockEntity } from '../../../core/database/entity/LeggerBlockEntity';
-import { DatabaseService } from '../../../core/database/DatabaseService';
-import { LedgerBlockParsedEvent } from '../../../core/transport/event/LedgerBlockParsedEvent';
+import { ILedgerBlockParseDto, LedgerBlockParseCommand } from '../transport/command/LedgerBlockParseCommand';
+import { LedgerBlockEntity } from '../../database/entity/LeggerBlockEntity';
+import { DatabaseService } from '../../database/DatabaseService';
+import { LedgerBlockParsedEvent } from '../transport/event/LedgerBlockParsedEvent';
 import { LedgerApiFactory } from '../service/LedgerApiFactory';
 import { TransportFabricBlockParser, ITransportFabricTransaction, ITransportFabricEvent } from '@ts-core/blockchain-fabric/transport/block';
-import { LedgerBlockTransactionEntity } from '../../../core/database/entity/LedgerBlockTransactionEntity';
+import { LedgerBlockTransactionEntity } from '../../database/entity/LedgerBlockTransactionEntity';
 import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
 import * as uuid from 'uuid';
 import { ExtendedError } from '@ts-core/common/error';
-import { LedgerBlockEventEntity } from '../../../core/database/entity/LedgerBlockEventEntity';
-import { LedgerBlock } from '@hlf-explorer/common/ledger';
+import { LedgerBlockEventEntity } from '../../database/entity/LedgerBlockEventEntity';
 
 @Injectable()
 export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBlockParseDto, LedgerBlockParseCommand> {

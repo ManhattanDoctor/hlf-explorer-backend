@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
 import { DateUtil, TransformUtil } from '@ts-core/common/util';
-import { DatabaseService } from '../../../core/database/DatabaseService';
+import { DatabaseService } from '../../database/DatabaseService';
 import { Ledger, LedgerBlock, LedgerInfo } from '@hlf-explorer/common/ledger';
-import { LedgerEntity } from '../../../core/database/entity/LedgerEntity';
+import { LedgerEntity } from '../../database/entity/LedgerEntity';
 import { LedgerStateChecker } from './LedgerStateChecker';
 import { Transport } from '@ts-core/common/transport';
 import { LedgerMonitorService } from './LedgerMonitorService';
@@ -58,10 +58,10 @@ export class LedgerService extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     public async initialize(): Promise<void> {
-        let hlf = (this.ledger = await this.ledgerGet('Hlf'));
-        await this.monitor.initialize([hlf]);
+        let karma = (this.ledger = await this.ledgerGet('Karma'));
+        await this.monitor.initialize([karma]);
 
-        let checker = new LedgerStateChecker(this.logger, this.transport, hlf);
+        let checker = new LedgerStateChecker(this.logger, this.transport, karma);
         checker.start();
     }
 
