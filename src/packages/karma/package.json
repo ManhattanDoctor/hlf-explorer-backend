@@ -1,0 +1,20 @@
+{
+    "name": "hlf-explorer-backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "",
+    "author": "Renat Gubaev",
+    "license": "ISC",
+    "scripts": {
+        "start": "ts-node -r tsconfig-paths/register main.ts",
+        "build": "tsc",
+        "typeorm": "ts-node -r tsconfig-paths/register ../../../node_modules/typeorm/cli.js --config ormconfig.ts",
+        "migration:generate": "npm run typeorm migration:generate -- --name Generate",
+        "migration:run": "npm run typeorm migration:run",
+        "migration:create": "npm run typeorm migration:create -- -n raz",
+        "migration:run:compiled": "../../../node_modules/typeorm/cli.js --config dist/src/packages/monitor-api/ormconfig.js migration:run"
+    },
+    "devDependencies": {
+        "ts-node": "8.5.4"
+    }
+}

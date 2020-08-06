@@ -1,0 +1,22 @@
+{
+    "name": "@karma/common",
+    "version": "1.0.0",
+    "description": "Common classes for Karma",
+    "author": "Renat Gubaev",
+    "license": "ISC",
+    "scripts": {
+        "build": "tsc",
+        "format": "prettier --list-different \"{src}/**/*.{ts,js,json}\"",
+        "format:fix": "prettier --write \"{src}/**/*.{ts,js,json}\" --loglevel warn"
+    },
+    "dependencies": {
+        "@ts-core/common": "^1.0.103",
+        "@ts-core/blockchain-fabric": "^1.0.66"
+    },
+    "devDependencies": {
+        "ts-node": "8.5.4",
+        "ts-node-dev": "1.0.0-pre.44",
+        "typescript": "3.7.3",
+        "tsconfig-paths": "3.9.0"
+    }
+}

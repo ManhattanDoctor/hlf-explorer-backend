@@ -1,0 +1,35 @@
+import { TransportCommandFabricAsync } from '@ts-core/blockchain-fabric/transport/command/TransportCommandFabricAsync';
+import { ITraceable } from '@ts-core/common/trace';
+import { KarmaLedgerCommand } from '../KarmaLedgerCommand';
+import { LedgerProject } from '../../../ledger/project';
+import { Matches } from 'class-validator';
+import { TransformUtil } from '@ts-core/common/util';
+
+export class ProjectRemoveCommand extends TransportCommandFabricAsync<IProjectRemoveDto, void> {
+    // --------------------------------------------------------------------------
+    //
+    //  Static Properties
+    //
+    // --------------------------------------------------------------------------
+
+    public static readonly NAME = KarmaLedgerCommand.PROJECT_REMOVE;
+
+    // --------------------------------------------------------------------------
+    //
+    //  Constructor
+    //
+    // --------------------------------------------------------------------------
+
+    constructor(request: IProjectRemoveDto) {
+        super(ProjectRemoveCommand.NAME, TransformUtil.toClass(ProjectRemoveDto, request));
+    }
+}
+
+export interface IProjectRemoveDto extends ITraceable {
+    uid: string;
+}
+
+class ProjectRemoveDto implements IProjectRemoveDto {
+    @Matches(LedgerProject.UID_REGXP)
+    uid: string;
+}
