@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from '@ts-core/common/logger';
 import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
-import { TransportFabricBlockParser, ITransportFabricTransaction, ITransportFabricEvent } from '@ts-core/blockchain-fabric/transport/block';
-import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
-import * as uuid from 'uuid';
-import { ExtendedError } from '@ts-core/common/error';
-import { BlockParseCommand } from '../transport/command/BlockParseCommand';
+import { BlockParseCommand, IBlockParseDto } from '../transport/command/BlockParseCommand';
 import { LedgerApi } from '@hlf-explorer/common/api/ledger';
 import { DatabaseService } from '../../database/DatabaseService';
+import { ActionParser } from '../service/ActionParser';
+import { LedgerBlockEntity } from '../../database/entity/LedgerBlockEntity';
+import { LedgerInfoEntity } from '../../database/entity/LedgerInfoEntity';
+import { ExtendedError } from '@ts-core/common/error';
 
 @Injectable()
-export class BlockParseHandler extends TransportCommandHandler<number, BlockParseCommand> {
+export class BlockParseHandler extends TransportCommandHandler<IBlockParseDto, BlockParseCommand> {
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -28,68 +28,23 @@ export class BlockParseHandler extends TransportCommandHandler<number, BlockPars
     //
     // --------------------------------------------------------------------------
 
-    protected async execute(params: number): Promise<void> {
-        this.log(`Parsing block #${params}...`);
-        let parser = new TransportFabricBlockParser();
+    protected async execute(params: IBlockParseDto): Promise<void> {
+        this.log(`Parsing block #${params.number}...`);
 
-        let rawBlock = await api.getBlock(params.number);
-        let parsedBlock = parser.parse(rawBlock);
+        let block = await this.api.getBlock(params.number);
+        try {
+            await this.database.getConnection().transaction(async manager => {
+                let parser = new ActionParser(this.logger);
+                let items = _.flatten(await Promise.all(block.transactions.map(item => parser.parse(item))));
+                if (!_.isEmpty(items)) {
+                    await manager.save(items);
+                }
 
-        let item = new LedgerBlockEntity();
-        item.ledgerId = params.ledgerId;
-
-        item.uid = uuid();
-        item.rawData = rawBlock;
-        ObjectUtil.copyProperties(parsedBlock, item, ['hash', 'number', 'createdDate']);
-
-        item.events = parsedBlock.events.map(event => this.parseEvent(params.ledgerId, item, event));
-        item.transactions = parsedBlock.transactions.map(transaction => this.parseTransaction(params.ledgerId, item, transaction));
-
-        await this.database.ledgerBlockSave(item);
-        await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: item.number });
-
-        // Have to use TransformUtil here
-        this.transport.dispatch(new LedgerBlockParsedEvent({ ledgerId: params.ledgerId, block: TransformUtil.fromClass(item) }));
+                await manager.save(new LedgerBlockEntity(block));
+                await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: block.number }, manager);
+            });
+        } catch (error) {
+            throw new ExtendedError(`Unable to parse block ${block.number}: ${error.message}`);
+        }
     }
-
-    private parseEvent = (ledgerId: number, block: LedgerBlockEntity, event: ITransportFabricEvent) => {
-        let item = new LedgerBlockEventEntity();
-        item.ledgerId = ledgerId;
-
-        item.uid = uuid();
-        item.block = block;
-        item.blockNumber = block.number;
-
-        if (ObjectUtil.hasOwnProperties(event.data, ['name', 'data']) && event.name === event.data.name) {
-            ObjectUtil.copyProperties({ data: event.data }, event);
-        }
-        ObjectUtil.copyProperties(event, item);
-
-        return item;
-    };
-
-    private parseTransaction = (ledgerId: number, block: LedgerBlockEntity, transaction: ITransportFabricTransaction) => {
-        let item = new LedgerBlockTransactionEntity();
-        item.ledgerId = ledgerId;
-
-        item.uid = uuid();
-        item.block = block;
-        item.blockNumber = block.number;
-        ObjectUtil.copyProperties(transaction, item);
-
-        let request = item.request;
-        if (!_.isNil(request)) {
-            item.requestId = request.id;
-            item.requestName = request.name;
-            if (!_.isNil(request.options)) {
-                item.requestUserId = request.options.userId;
-            }
-        }
-
-        let response = item.response;
-        if (!_.isNil(response) && !_.isNil(response.response)) {
-            item.responseErrorCode = ExtendedError.instanceOf(response.response) ? response.response.code : null;
-        }
-        return item;
-    };
 }

@@ -45,16 +45,13 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
         this.log(`Check blocks: ${blockLast - blockHeight} = ${blockLast} - ${blockHeight}`);
         await this.database.ledgerUpdate({ id: ledger.id, blockHeight: blockLast });
 
-        let blocks: Array<number> = [];
-        for (let i = blockHeight + 1; i <= blockLast; i++) {
-            blocks.push(i);
-        }
-        for (let block of await this.getUnparsedBlocks(ledger, blocks)) {
-            this.parseBlock(params.ledgerId, block);
+        for (let number of await this.getUnparsedBlocks(ledger, blockHeight + 1, blockLast)) {
+            this.parseBlock(params.ledgerId, number);
         }
     }
 
-    protected async getUnparsedBlocks(ledger: Ledger, blocksToCheck: Array<number>): Promise<Array<number>> {
+    protected async getUnparsedBlocks(ledger: Ledger, start: number, end: number): Promise<Array<number>> {
+        let blocksToCheck = _.range(start, end + 1);
         let items = await Promise.all(
             _.chunk(blocksToCheck, TypeormUtil.POSTGRE_FORIN_MAX).map(chunk =>
                 this.database.ledgerBlock
@@ -67,7 +64,6 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
         );
         let blocks: Array<number> = _.flatten(items).map(item => item.number);
         return blocksToCheck.filter(blockHeight => !blocks.includes(blockHeight));
-        // return blocksToCheck;
     }
 
     protected async getCurrentBlockHeight(ledger: Ledger): Promise<number> {

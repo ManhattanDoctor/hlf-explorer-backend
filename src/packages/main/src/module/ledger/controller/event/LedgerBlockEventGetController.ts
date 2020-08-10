@@ -70,13 +70,16 @@ export class LedgerBlockEventGetController extends DefaultController<LedgerBlock
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
     public async execute(@Query() params: LedgerBlockEventGetRequest): Promise<LedgerBlockEventGetResponse> {
-        let event = await this.cache.wrap<LedgerBlockEvent>(this.getCacheKey(params), () => this.getItem(params), {
+        /*
+        let item = await this.cache.wrap<LedgerBlockEvent>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
-        if (_.isNil(event)) {
+        */
+        let item = await this.getItem(params);
+        if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find event "${params.uid}" uid`, HttpStatus.NOT_FOUND);
         }
-        return { value: event };
+        return { value: item };
     }
 
     // --------------------------------------------------------------------------

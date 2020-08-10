@@ -20,7 +20,7 @@ export class StateCheckHandler extends TransportCommandHandler<void, StateCheckC
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private service: ExplorerService, private api: LedgerApi) {
+    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private service: ExplorerService) {
         super(logger, transport, StateCheckCommand.NAME);
     }
 
@@ -32,13 +32,13 @@ export class StateCheckHandler extends TransportCommandHandler<void, StateCheckC
 
     protected async execute(): Promise<void> {
         let ledger = await this.service.ledgerGet();
-        let blockLast = await this.getLastBlockHeight(ledger);
+        let blockLast = await this.service.getLastBlockHeight(ledger.name);
 
         if (_.isNaN(blockLast) || blockLast === 0) {
             throw new ExtendedError(`Last block is incorrect`);
         }
 
-        let blockHeight = await this.getCurrentBlockHeight(ledger);
+        let blockHeight = await ledger.blockHeight;
         if (blockHeight >= blockLast) {
             return;
         }
@@ -46,40 +46,10 @@ export class StateCheckHandler extends TransportCommandHandler<void, StateCheckC
         this.log(`Check blocks: ${blockLast - blockHeight} = ${blockLast} - ${blockHeight}`);
         await this.database.ledgerUpdate({ id: ledger.id, blockHeight: blockLast });
 
-        let blocks: Array<number> = [];
-        for (let i = blockHeight + 1; i <= blockLast; i++) {
-            blocks.push(i);
-        }
-        for (let block of await this.getUnparsedBlocks(blocks)) {
-            this.parseBlock(block);
+        for (let number of await this.service.getUnparsedBlocks(blockHeight + 1, blockLast)) {
+            this.transport.send(new BlockParseCommand({ ledgerId: ledger.id, number }));
         }
     }
 
-    protected async getUnparsedBlocks(blocksToCheck: Array<number>): Promise<Array<number>> {
-        let items = await Promise.all(
-            _.chunk(blocksToCheck, TypeormUtil.POSTGRE_FORIN_MAX).map(chunk =>
-                this.database.ledgerBlock
-                    .createQueryBuilder('block')
-                    .select(['block.number'])
-                    .where('block.number IN (:...blockNumbers)', { blockNumbers: chunk })
-                    .getMany()
-            )
-        );
-        let blocks: Array<number> = _.flatten(items).map(item => item.number);
-        return blocksToCheck.filter(blockHeight => !blocks.includes(blockHeight));
-    }
-
-    protected async getCurrentBlockHeight(ledger: Ledger): Promise<number> {
-        let item = await this.service.ledgerGet();
-        return item.blockHeight;
-    }
-
-    protected async getLastBlockHeight(ledger: Ledger): Promise<number> {
-        let item = await this.api.getInfo(ledger.name);
-        return item.blockLast.number;
-    }
-
-    protected parseBlock(number: number): void {
-        this.transport.send(new BlockParseCommand(number));
-    }
+    protected parseBlock(ledgerId: number, number: number): void {}
 }

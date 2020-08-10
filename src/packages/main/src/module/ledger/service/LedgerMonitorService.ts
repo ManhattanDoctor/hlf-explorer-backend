@@ -47,6 +47,7 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
         item.id = ledger.id;
         item.name = ledger.name;
         item.blocksLast = new LedgerBlocksLast(await this.getBlocks(ledger.id));
+        item.blockLast = item.blocksLast.getFirst();
         return item;
     }
 
@@ -91,10 +92,16 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
             return;
         }
 
+        let data: Partial<LedgerInfo> = { id: item.id, name: item.name, blockLast: event.block };
+        this.namespace.emit(LedgerSocketEvent.LEDGER_BLOCK_PARSED, data);
+
         let block = TransformUtil.toClass(LedgerBlock, event.block);
+        if (!_.isNil(item.blockLast) && item.blockLast.number >= block.number) {
+            return;
+        }
         item.blockLast = block;
         item.blocksLast.add(block);
-        this.namespace.emit(LedgerSocketEvent.LEDGER_UPDATED, { id: item.id, name: item.name, blockLast: event.block });
+        this.namespace.emit(LedgerSocketEvent.LEDGER_UPDATED, data);
     }
 
     public getInfo(ledgerId: number): LedgerInfo {

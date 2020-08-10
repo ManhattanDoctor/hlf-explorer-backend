@@ -64,14 +64,17 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
             throw new ExtendedError(`Block hash or number is nil`, HttpStatus.BAD_REQUEST);
         }
 
-        let block = await this.cache.wrap<LedgerBlock>(this.getCacheKey(params), () => this.getItem(params), {
+        /*
+        let item = await this.cache.wrap<LedgerBlock>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
-        if (_.isNil(block)) {
+        */
+        let item = await this.getItem(params);
+        if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find block "${params.hashOrNumber}" hash or number`, HttpStatus.NOT_FOUND);
         }
 
-        return { value: block };
+        return { value: item };
     }
 
     // --------------------------------------------------------------------------

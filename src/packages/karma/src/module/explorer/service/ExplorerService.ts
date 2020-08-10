@@ -8,6 +8,8 @@ import { LedgerApi } from '@hlf-explorer/common/api/ledger';
 import { LedgerInfoEntity } from '../../database/entity/LedgerInfoEntity';
 import { ILedgerInfo } from '../../database/entity/ILedgerInfo';
 import * as _ from 'lodash';
+import { TypeormUtil } from '@ts-core/backend/database/typeorm';
+import { Ledger } from '@hlf-explorer/common/ledger';
 
 @Injectable()
 export class ExplorerService extends LoggerWrapper {
@@ -25,7 +27,7 @@ export class ExplorerService extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private transport: Transport, private database: DatabaseService) {
+    constructor(logger: Logger, private transport: Transport, private database: DatabaseService, private api: LedgerApi) {
         super(logger);
     }
 
@@ -47,6 +49,39 @@ export class ExplorerService extends LoggerWrapper {
         return item.toObject();
     }
 
+    private async checkBlocks(ledger: Ledger): Promise<void> {
+        let blocks = await this.getUnparsedBlocks(0, await this.getLastBlockHeight(ExplorerService.LEDGER_NAME));
+        if (!_.isEmpty(blocks)) {
+            this.warn(`Blocks ${blocks.join(', ')} are not parsed: need to parse it manually`);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    //  Blocks Methods
+    //
+    // --------------------------------------------------------------------------
+
+    public async getLastBlockHeight(name: string): Promise<number> {
+        let item = await this.api.getInfo(name);
+        return item.blockLast.number;
+    }
+
+    public async getUnparsedBlocks(start: number, end: number): Promise<Array<number>> {
+        let blocksToCheck = _.range(start, end + 1);
+        let items = await Promise.all(
+            _.chunk(blocksToCheck, TypeormUtil.POSTGRE_FORIN_MAX).map(chunk =>
+                this.database.ledgerBlock
+                    .createQueryBuilder('block')
+                    .select(['block.number'])
+                    .where('block.number IN (:...blockNumbers)', { blockNumbers: chunk })
+                    .getMany()
+            )
+        );
+        let blocks: Array<number> = _.flatten(items).map(item => item.number);
+        return blocksToCheck.filter(blockHeight => !blocks.includes(blockHeight));
+    }
+
     // --------------------------------------------------------------------------
     //
     //  Public Methods
@@ -63,6 +98,8 @@ export class ExplorerService extends LoggerWrapper {
         if (_.isNil(ledger)) {
             ledger = await this.createLedger();
         }
+
+        await this.checkBlocks(ledger);
 
         let checker = new StateChecker(this.logger, this.transport, ledger.blockFrequency);
         checker.start();

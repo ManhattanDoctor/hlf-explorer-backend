@@ -73,15 +73,18 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
         if (_.isNil(params.hash)) {
             throw new ExtendedError(`Block hash is nil`, HttpStatus.BAD_REQUEST);
         }
-
-        let transaction = await this.cache.wrap<LedgerBlockTransaction>(this.getCacheKey(params), () => this.getItem(params), {
+        /*
+        let item = await this.cache.wrap<LedgerBlockTransaction>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
-        if (_.isNil(transaction)) {
+        */
+
+        let item = await this.getItem(params);
+        if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find transaction "${params.hash}" hash`, HttpStatus.NOT_FOUND);
         }
 
-        return { value: transaction };
+        return { value: item };
     }
 
     // --------------------------------------------------------------------------

@@ -14,6 +14,7 @@ import { PromiseHandler } from '@ts-core/common/promise';
 import { ExplorerService } from './module/explorer/service/ExplorerService';
 import * as _ from 'lodash';
 import { ExtendedError } from '@ts-core/common/error';
+import { BlockParseCommand } from './module/explorer/transport/command/BlockParseCommand';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------

@@ -65,13 +65,15 @@ export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequ
             throw new ExtendedError(`Info name of id is nil`, HttpStatus.BAD_REQUEST);
         }
 
+        /*
         let item = await this.cache.wrap<LedgerInfo>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_SECOND / DateUtil.MILISECONDS_SECOND
         });
+        */
+        let item = await this.getItem(params);
         if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find info "${params.nameOrId}" by name or id`, HttpStatus.NOT_FOUND);
         }
-
         return { value: item };
     }
 

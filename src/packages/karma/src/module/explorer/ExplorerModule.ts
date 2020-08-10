@@ -7,6 +7,8 @@ import { Logger, ILogger } from '@ts-core/common/logger';
 import { Transport, ITransport } from '@ts-core/common/transport';
 import { DatabaseService } from '../database/DatabaseService';
 import { StateCheckHandler } from './controller/StateCheckHandler';
+import { BlockParseHandler } from './controller/BlockParseHandler';
+import { BlockListUnparsedController } from './controller/block/BlockListUnparsedController';
 
 export class ExplorerModule {
     // --------------------------------------------------------------------------
@@ -28,7 +30,8 @@ export class ExplorerModule {
             MonitorService,
             ExplorerService,
 
-            StateCheckHandler
+            StateCheckHandler,
+            BlockParseHandler
             /*
             LedgerStateChecker,
             LedgerBlockParseHandler,
@@ -37,7 +40,7 @@ export class ExplorerModule {
         ];
         return {
             module: ExplorerModule,
-            controllers: [],
+            controllers: [BlockListUnparsedController],
             providers,
             exports: providers
         };
