@@ -1,9 +1,9 @@
 import { IDatabaseSettings, IWebSettings, EnvSettingsStorage } from '@ts-core/backend/settings';
 import { ILogger, LoggerLevel } from '@ts-core/common/logger';
 import { AbstractSettingsStorage } from '@ts-core/common/settings';
-import { IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
+import { ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
 
-export class AppSettings extends EnvSettingsStorage implements IFabricApiSettings, IWebSettings, IDatabaseSettings {
+export class AppSettings extends EnvSettingsStorage implements ITransportFabricSettings, IWebSettings, IDatabaseSettings {
     // --------------------------------------------------------------------------
     //
     //  Public Properties

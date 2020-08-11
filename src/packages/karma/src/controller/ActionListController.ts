@@ -1,25 +1,14 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import {
-    ApiForbiddenResponse,
-    ApiHeader,
-    ApiOkResponse,
-    ApiOperation,
-    ApiProperty,
-    ApiPropertyOptional,
-    ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common/dto';
 import { Logger } from '@ts-core/common/logger';
 import { IsOptional, IsString } from 'class-validator';
-import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
-import { DatabaseService } from '../../../database/DatabaseService';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { LedgerService } from '../../service/LedgerService';
+import { DatabaseService } from '../database/DatabaseService';
 import * as _ from 'lodash';
-import { LedgerBlockEventEntity } from '../../../database/entity/LedgerBlockEventEntity';
+import { ILedgerAction } from '@karma/common/explorer/action';
+import { LedgerActionEntity } from '../database/entity/LedgerActionEntity';
 
 // --------------------------------------------------------------------------
 //
@@ -27,12 +16,12 @@ import { LedgerBlockEventEntity } from '../../../database/entity/LedgerBlockEven
 //
 // --------------------------------------------------------------------------
 
-export class LedgerBlockEventListDto implements Paginable<LedgerBlockEvent> {
+export class ActionListDto implements Paginable<ILedgerAction> {
     @ApiPropertyOptional()
-    conditions?: FilterableConditions<LedgerBlockEvent>;
+    conditions?: FilterableConditions<ILedgerAction>;
 
     @ApiPropertyOptional()
-    sort?: FilterableSort<LedgerBlockEvent>;
+    sort?: FilterableSort<ILedgerAction>;
 
     @ApiPropertyOptional({ default: Paginable.DEFAULT_PAGE_SIZE })
     pageSize: number;
@@ -46,7 +35,7 @@ export class LedgerBlockEventListDto implements Paginable<LedgerBlockEvent> {
     traceId?: string;
 }
 
-export class LedgerBlockEventListDtoResponse implements IPagination<LedgerBlockEvent> {
+export class ActionListDtoResponse implements IPagination<ILedgerAction> {
     @ApiProperty()
     pageSize: number;
 
@@ -59,8 +48,8 @@ export class LedgerBlockEventListDtoResponse implements IPagination<LedgerBlockE
     @ApiProperty()
     total: number;
 
-    @ApiProperty({ isArray: true, type: LedgerBlockEvent })
-    items: Array<LedgerBlockEvent>;
+    @ApiProperty({ isArray: true, type: ILedgerAction })
+    items: Array<ILedgerAction>;
 }
 
 // --------------------------------------------------------------------------
@@ -69,8 +58,8 @@ export class LedgerBlockEventListDtoResponse implements IPagination<LedgerBlockE
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/events')
-export class LedgerBlockEventListController extends DefaultController<LedgerBlockEventListDto, LedgerBlockEventListDtoResponse> {
+@Controller('api/actions')
+export class ActionListController extends DefaultController<ActionListDto, ActionListDtoResponse> {
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -88,24 +77,18 @@ export class LedgerBlockEventListController extends DefaultController<LedgerBloc
     // --------------------------------------------------------------------------
 
     @Get()
-    @ApiOperation({ summary: `Ledger events list` })
-    @ApiHeader({ name: `x-token`, description: `Authorization token`, required: true })
-    @ApiUnauthorizedResponse({ description: `Authorization failed` })
-    @ApiTooManyRequestsResponse({ description: `Too many requests` })
-    @ApiForbiddenResponse({ description: `Access forbidden` })
-    @ApiOkResponse({ type: LedgerBlockEventListDtoResponse })
-    public async executeExtended(@Query({ transform: Paginable.transform }) params: LedgerBlockEventListDto): Promise<LedgerBlockEventListDtoResponse> {
+    @ApiOperation({ summary: `Actions list` })
+    @ApiOkResponse({ type: ActionListDtoResponse })
+    public async executeExtended(@Query({ transform: Paginable.transform }) params: ActionListDto): Promise<ActionListDtoResponse> {
         if (_.isNil(params.conditions)) {
             params.conditions = {};
         }
 
-        let query = this.database.ledgerBlockEvent.createQueryBuilder('item');
+        let query = this.database.ledgerAction.createQueryBuilder('item');
         return TypeormUtil.toPagination(query, params, this.transform);
     }
 
-    protected transform = async (value: LedgerBlockEventEntity): Promise<LedgerBlockEvent> => {
-        let item = TransformUtil.fromClass(value);
-        item.rawData = null;
-        return item;
+    protected transform = async (value: LedgerActionEntity): Promise<ILedgerAction> => {
+        return value.toObject();
     };
 }

@@ -17,12 +17,12 @@ import { LedgerMonitorService } from '../../service/LedgerMonitorService';
 //
 //  Dto
 //
-// --------------------------------------------------------------------------
+// ------------------------------------------I--------------------------------
 
 export class LedgerInfoGetRequest implements ILedgerInfoGetRequest {
     @ApiProperty()
     @IsDefined()
-    nameOrId: string | number;
+    nameOrId: number | string;
 }
 
 export class LedgerInfoGetResponse implements ILedgerInfoGetResponse {
@@ -45,7 +45,7 @@ export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequ
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private service: LedgerService, private monitor: LedgerMonitorService, private cache: Cache) {
+    constructor(logger: Logger, private monitor: LedgerMonitorService, private cache: Cache) {
         super(logger);
     }
 
@@ -62,7 +62,7 @@ export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequ
     @ApiOkResponse({ type: LedgerInfo })
     public async execute(@Query() params: LedgerInfoGetRequest): Promise<LedgerInfoGetResponse> {
         if (_.isNil(params.nameOrId)) {
-            throw new ExtendedError(`Info name of id is nil`, HttpStatus.BAD_REQUEST);
+            throw new ExtendedError(`Info name or id is nil`, HttpStatus.BAD_REQUEST);
         }
 
         /*
@@ -72,7 +72,7 @@ export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequ
         */
         let item = await this.getItem(params);
         if (_.isNil(item)) {
-            throw new ExtendedError(`Unable to find info "${params.nameOrId}" by name or id`, HttpStatus.NOT_FOUND);
+            throw new ExtendedError(`Unable to find ledger info "${params.nameOrId}"`, HttpStatus.NOT_FOUND);
         }
         return { value: item };
     }
@@ -84,16 +84,11 @@ export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequ
     // --------------------------------------------------------------------------
 
     private getCacheKey(params: ILedgerInfoGetRequest): string {
-        return `${this.service.ledgerId}:info:${params.nameOrId}`;
+        return `${params.nameOrId}:info`;
     }
 
     private async getItem(params: ILedgerInfoGetRequest): Promise<LedgerInfo> {
-        let item = null;
-        if (!_.isNaN(Number(params.nameOrId))) {
-            item = await this.monitor.getInfo(Number(params.nameOrId));
-        } else {
-            item = await this.monitor.getInfoByName(params.nameOrId.toString());
-        }
+        let item = await this.monitor.getInfo(params.nameOrId);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;
     }
 }

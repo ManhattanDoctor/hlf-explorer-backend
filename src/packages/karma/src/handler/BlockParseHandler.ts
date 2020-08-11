@@ -4,10 +4,9 @@ import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
 import * as _ from 'lodash';
 import { BlockParseCommand, IBlockParseDto } from '../transport/command/BlockParseCommand';
 import { LedgerApi } from '@hlf-explorer/common/api/ledger';
-import { DatabaseService } from '../../database/DatabaseService';
+import { DatabaseService } from '../database/DatabaseService';
 import { ActionParser } from '../service/ActionParser';
-import { LedgerBlockEntity } from '../../database/entity/LedgerBlockEntity';
-import { LedgerInfoEntity } from '../../database/entity/LedgerInfoEntity';
+import { LedgerBlockEntity } from '../database/entity/LedgerBlockEntity';
 import { ExtendedError } from '@ts-core/common/error';
 
 @Injectable()

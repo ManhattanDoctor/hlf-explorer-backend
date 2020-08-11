@@ -3,12 +3,9 @@ import { Logger } from '@ts-core/common/logger';
 import { TraceUtil } from '@ts-core/common/trace';
 import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
 import { StateCheckCommand } from '../transport/command/StateCheckCommand';
-import { DatabaseService } from '../../database/DatabaseService';
+import { DatabaseService } from '../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import * as _ from 'lodash';
-import { Ledger } from '@hlf-explorer/common/ledger';
-import { TypeormUtil } from '@ts-core/backend/database/typeorm';
-import { LedgerApi } from '@hlf-explorer/common/api/ledger';
 import { ExplorerService } from '../service/ExplorerService';
 import { BlockParseCommand } from '../transport/command/BlockParseCommand';
 
@@ -32,7 +29,7 @@ export class StateCheckHandler extends TransportCommandHandler<void, StateCheckC
 
     protected async execute(): Promise<void> {
         let ledger = await this.service.ledgerGet();
-        let blockLast = await this.service.getLastBlockHeight(ledger.name);
+        let blockLast = await this.service.getLastBlockHeight();
 
         if (_.isNaN(blockLast) || blockLast === 0) {
             throw new ExtendedError(`Last block is incorrect`);

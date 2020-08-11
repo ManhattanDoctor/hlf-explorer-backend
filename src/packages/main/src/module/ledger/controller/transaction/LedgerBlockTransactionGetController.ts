@@ -1,4 +1,4 @@
-import { Controller, Get, Param, HttpStatus, Body, Inject, CACHE_MANAGER, Query } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
@@ -8,9 +8,8 @@ import { ILedgerBlockTransactionGetResponse, ILedgerBlockTransactionGetRequest }
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
-import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
+import { TransformUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
-import { LedgerService } from '../../service/LedgerService';
 import { Validator } from 'class-validator';
 
 // --------------------------------------------------------------------------
@@ -23,6 +22,10 @@ export class LedgerBlockTransactionGetRequest implements ILedgerBlockTransaction
     @ApiProperty()
     @IsString()
     hash: string;
+
+    @ApiProperty()
+    @IsNumberString()
+    ledgerId: number;
 }
 
 export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactionGetResponse {
@@ -39,13 +42,6 @@ export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactio
 
 @Controller('api/ledger/transaction')
 export class LedgerBlockTransactionGetController extends DefaultController<LedgerBlockTransactionGetRequest, LedgerBlockTransactionGetResponse> {
-    // --------------------------------------------------------------------------
-    //
-    //  Properties
-    //
-    // --------------------------------------------------------------------------
-
-    private validator: Validator;
 
     // --------------------------------------------------------------------------
     //
@@ -53,9 +49,8 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private database: DatabaseService, private service: LedgerService, private cache: Cache) {
+    constructor(logger: Logger, private database: DatabaseService) {
         super(logger);
-        this.validator = new Validator();
     }
 
     // --------------------------------------------------------------------------
@@ -87,18 +82,9 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
         return { value: item };
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //  Private Methods
-    //
-    // --------------------------------------------------------------------------
-
-    private getCacheKey(params: ILedgerBlockTransactionGetRequest): string {
-        return `${this.service.ledgerId}:transaction:${params.hash}`;
-    }
 
     private async getItem(params: ILedgerBlockTransactionGetRequest): Promise<LedgerBlockTransaction> {
-        let conditions = { ledgerId: this.service.ledgerId, hash: params.hash };
+        let conditions = { ledgerId: params.ledgerId, hash: params.hash };
         let item = await this.database.ledgerBlockTransaction.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;
     }

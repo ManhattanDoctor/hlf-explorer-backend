@@ -1,15 +1,15 @@
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
-import { FabricApi, IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
+import { TransportFabric, ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
 import * as _ from 'lodash';
 
-export class LedgerApiFactory extends LoggerWrapper {
+export class LedgerTransportFactory extends LoggerWrapper {
     // --------------------------------------------------------------------------
     //
     //  Properties
     //
     // --------------------------------------------------------------------------
 
-    protected items: Map<number, FabricApi>;
+    protected items: Map<number, TransportFabric>;
 
     // --------------------------------------------------------------------------
     //
@@ -17,7 +17,7 @@ export class LedgerApiFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, protected settings: IFabricApiSettings) {
+    constructor(logger: Logger, protected settings: ITransportFabricSettings) {
         super(logger);
         this.items = new Map();
     }
@@ -29,7 +29,7 @@ export class LedgerApiFactory extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     // Override this method if you want to support different ledgers at the same time
-    protected getSettings(ledgerId: number): IFabricApiSettings {
+    protected getSettings(ledgerId: number): ITransportFabricSettings {
         return this.settings;
     }
 
@@ -39,10 +39,10 @@ export class LedgerApiFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    public async get(ledgerId: number): Promise<FabricApi> {
+    public async get(ledgerId: number): Promise<TransportFabric> {
         let item = this.items.get(ledgerId);
         if (_.isNil(item)) {
-            item = new FabricApi(this.logger, this.getSettings(ledgerId));
+            item = new TransportFabric(this.logger, this.getSettings(ledgerId));
             this.items.set(ledgerId, item);
         }
 

@@ -7,7 +7,7 @@ import { ICompanyUserAddDto, ICompanyUserRemoveDto, ICompanyRemoveDto, ICompanyE
 import { IUserAddDto, IUserCryptoKeyChangeDto, IUserRemoveDto, IUserEditDto } from '@karma/common/transport/command/user';
 import { ICoinObject, ICoinTransferDto, ICoinBurnDto, ICoinEmitDto, CoinObjectType } from '@karma/common/transport/command/coin';
 import { KarmaLedgerEvent } from '@karma/common/transport/event';
-import { LedgerActionEntity } from '../../database/entity/LedgerActionEntity';
+import { LedgerActionEntity } from '../database/entity/LedgerActionEntity';
 import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
 import { FabricTransactionValidationCode } from '@ts-core/blockchain-fabric/api';
 import { ExtendedError } from '@ts-core/common/error';

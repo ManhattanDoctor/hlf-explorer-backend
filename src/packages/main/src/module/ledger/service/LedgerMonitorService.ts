@@ -104,17 +104,11 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
         this.namespace.emit(LedgerSocketEvent.LEDGER_UPDATED, data);
     }
 
-    public getInfo(ledgerId: number): LedgerInfo {
-        return this.items.get(ledgerId.toString());
-    }
-
-    public getInfoByName(name: string): LedgerInfo {
-        for (let item of this.items.collection) {
-            if (item.name === name) {
-                return item;
-            }
+    public getInfo(nameOrId: string | number): LedgerInfo {
+        if (!_.isNaN(Number(nameOrId))) {
+            return this.items.get(nameOrId.toString());
         }
-        return null;
+        return _.find(this.items.collection, { name: nameOrId.toString() });
     }
 
     // --------------------------------------------------------------------------

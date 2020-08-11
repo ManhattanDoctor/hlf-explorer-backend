@@ -2,15 +2,13 @@ import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsDefined } from 'class-validator';
+import { IsDefined, IsNumberString } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockGetResponse, ILedgerBlockGetRequest } from '@hlf-explorer/common/api/ledger/block';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
-import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { Cache } from '@ts-core/backend-nestjs/cache';
-import { LedgerService } from '../../service/LedgerService';
+import { TransformUtil } from '@ts-core/common/util';
 
 // --------------------------------------------------------------------------
 //
@@ -22,6 +20,10 @@ export class LedgerBlockGetRequest implements ILedgerBlockGetRequest {
     @ApiProperty()
     @IsDefined()
     hashOrNumber: number | string;
+
+    @ApiProperty()
+    @IsNumberString()
+    ledgerId: number;
 }
 
 export class LedgerBlockGetResponse implements ILedgerBlockGetResponse {
@@ -44,7 +46,7 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private database: DatabaseService, private service: LedgerService, private cache: Cache) {
+    constructor(logger: Logger, private database: DatabaseService) {
         super(logger);
     }
 
@@ -77,18 +79,9 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
         return { value: item };
     }
 
-    // --------------------------------------------------------------------------
-    //
-    //  Private Methods
-    //
-    // --------------------------------------------------------------------------
-
-    private getCacheKey(params: ILedgerBlockGetRequest): string {
-        return `${this.service.ledgerId}:block:${params.hashOrNumber}`;
-    }
 
     private async getItem(params: ILedgerBlockGetRequest): Promise<LedgerBlock> {
-        let conditions = { ledgerId: this.service.ledgerId } as any;
+        let conditions = { ledgerId: params.ledgerId } as Partial<LedgerBlock>;
         if (!_.isNaN(Number(params.hashOrNumber))) {
             conditions.number = Number(params.hashOrNumber);
         } else {

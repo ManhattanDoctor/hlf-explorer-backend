@@ -99,13 +99,12 @@ export class LedgerBlockListController extends DefaultController<LedgerBlockList
         if (_.isNil(params.conditions)) {
             params.conditions = {};
         }
-        ObjectUtil.copyProperties({ ledgerId: this.service.ledgerId }, params.conditions);
 
-        return TypeormUtil.toPagination(
-            this.database.ledgerBlock.createQueryBuilder('item').innerJoinAndSelect('item.transactions', 'transactions'),
-            params,
-            this.transform
-        );
+        let query = this.database.ledgerBlock
+            .createQueryBuilder('item')
+            .innerJoinAndSelect('item.events', 'events')
+            .innerJoinAndSelect('item.transactions', 'transactions');
+        return TypeormUtil.toPagination(query, params, this.transform);
     }
 
     protected transform = async (value: LedgerBlockEntity): Promise<LedgerBlock> => {

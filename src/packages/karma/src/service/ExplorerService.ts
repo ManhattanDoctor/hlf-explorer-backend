@@ -1,26 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
 import { DateUtil, ObjectUtil } from '@ts-core/common/util';
-import { DatabaseService } from '../../database/DatabaseService';
+import { DatabaseService } from '../database/DatabaseService';
 import { StateChecker } from './StateChecker';
 import { ITransport, Transport } from '@ts-core/common/transport';
 import { LedgerApi } from '@hlf-explorer/common/api/ledger';
-import { LedgerInfoEntity } from '../../database/entity/LedgerInfoEntity';
-import { ILedgerInfo } from '../../database/entity/ILedgerInfo';
+import { LedgerInfoEntity } from '../database/entity/LedgerInfoEntity';
+import { ILedgerInfo } from '../database/entity/ILedgerInfo';
 import * as _ from 'lodash';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { Ledger } from '@hlf-explorer/common/ledger';
+import { ApiMonitor } from './ApiMonitor';
 
 @Injectable()
 export class ExplorerService extends LoggerWrapper {
-    // --------------------------------------------------------------------------
-    //
-    //  Constants
-    //
-    // --------------------------------------------------------------------------
-
-    public static LEDGER_NAME = 'Karma';
-
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -39,7 +32,7 @@ export class ExplorerService extends LoggerWrapper {
 
     private async createLedger(): Promise<ILedgerInfo> {
         let item = new LedgerInfoEntity();
-        item.name = ExplorerService.LEDGER_NAME;
+        item.name = ApiMonitor.LEDGER_NAME;
         item.blockHeight = 0;
         item.blockHeightParsed = 0;
         item.blockFrequency = 1 * DateUtil.MILISECONDS_SECOND;
@@ -49,8 +42,8 @@ export class ExplorerService extends LoggerWrapper {
         return item.toObject();
     }
 
-    private async checkBlocks(ledger: Ledger): Promise<void> {
-        let blocks = await this.getUnparsedBlocks(0, await this.getLastBlockHeight(ExplorerService.LEDGER_NAME));
+    private async checkBlocks(): Promise<void> {
+        let blocks = await this.getUnparsedBlocks(0, await this.getLastBlockHeight());
         if (!_.isEmpty(blocks)) {
             this.warn(`Blocks ${blocks.join(', ')} are not parsed: need to parse it manually`);
         }
@@ -62,8 +55,8 @@ export class ExplorerService extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    public async getLastBlockHeight(name: string): Promise<number> {
-        let item = await this.api.getInfo(name);
+    public async getLastBlockHeight(): Promise<number> {
+        let item = await this.api.getInfo(ApiMonitor.LEDGER_NAME);
         return item.blockLast.number;
     }
 
@@ -99,7 +92,7 @@ export class ExplorerService extends LoggerWrapper {
             ledger = await this.createLedger();
         }
 
-        await this.checkBlocks(ledger);
+        await this.checkBlocks();
 
         let checker = new StateChecker(this.logger, this.transport, ledger.blockFrequency);
         checker.start();

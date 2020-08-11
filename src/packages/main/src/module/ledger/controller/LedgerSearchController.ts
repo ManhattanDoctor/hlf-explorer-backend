@@ -2,12 +2,11 @@ import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsDefined, IsEnum } from 'class-validator';
-import { LedgerBlock, LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
+import { IsDefined, IsNumberString, IsEnum } from 'class-validator';
+import { LedgerBlock, LedgerBlockTransaction, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { ILedgerSearchRequest, ILedgerSearchResponse } from '@hlf-explorer/common/api/ledger';
 import * as _ from 'lodash';
 import { ExtendedError } from '@ts-core/common/error';
-import { ServerResponse } from 'http';
 import { Validator } from 'class-validator';
 
 // --------------------------------------------------------------------------
@@ -20,12 +19,16 @@ export class LedgerSearchRequest implements ILedgerSearchRequest {
     @ApiProperty()
     @IsDefined()
     query: any;
+
+    @ApiProperty()
+    @IsNumberString()
+    ledgerId: number;
 }
 
 export class LedgerSearchResponse implements ILedgerSearchResponse {
     @ApiProperty()
     @IsDefined()
-    value: LedgerBlock | LedgerBlockTransaction;
+    value: LedgerBlock | LedgerBlockTransaction | LedgerBlockEvent;
 }
 
 // --------------------------------------------------------------------------
@@ -62,7 +65,7 @@ export class LedgerSearchController extends DefaultController<LedgerSearchReques
     // --------------------------------------------------------------------------
 
     @Get()
-    @ApiOperation({ summary: `Search ledger block or transaction` })
+    @ApiOperation({ summary: `Search ledger block, transaction or event` })
     @ApiNotFoundResponse({ description: `Not found` })
     @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
@@ -79,6 +82,7 @@ export class LedgerSearchController extends DefaultController<LedgerSearchReques
         } else {
             url = `transaction?hashOrUid=${value}`;
         }
+        url = `${url}&ledgerId=${params.ledgerId}`;
         return response.redirect(url);
     }
 }

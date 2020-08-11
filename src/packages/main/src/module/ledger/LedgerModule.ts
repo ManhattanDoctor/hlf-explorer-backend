@@ -4,9 +4,8 @@ import { LedgerBlockListController } from './controller/block/LedgerBlockListCon
 import { LedgerService } from './service/LedgerService';
 import { LedgerApiFactory } from './service/LedgerApiFactory';
 import { LedgerMonitorService } from './service/LedgerMonitorService';
-import { LedgerStateChecker } from './service/LedgerStateChecker';
-import { LedgerBlockParseHandler } from './controller/LedgerBlockParseHandler';
-import { LedgerStateCheckHandler } from './controller/LedgerStateCheckHandler';
+import { LedgerBlockParseHandler } from './handler/LedgerBlockParseHandler';
+import { LedgerStateCheckHandler } from './handler/LedgerStateCheckHandler';
 import { LEDGER_SOCKET_NAMESPACE } from '@hlf-explorer/common/api/ledger';
 import { IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
 import { DatabaseService } from '../database/DatabaseService';
@@ -18,6 +17,9 @@ import { LedgerBlockEventGetController } from './controller/event/LedgerBlockEve
 import { LedgerBlockEventListController } from './controller/event/LedgerBlockEventListController';
 import { LedgerInfoGetController } from './controller/info/LedgerInfoGetController';
 import { LedgerInfoListController } from './controller/info/LedgerInfoListController';
+import { ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
+import { LedgerTransportFactory } from './service/LedgerTransportFactory';
+import { LedgerCommandController } from './controller/LedgerCommandController';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -26,7 +28,7 @@ export class LedgerModule {
     //
     // --------------------------------------------------------------------------
 
-    public static forRoot(settings: IFabricApiSettings): DynamicModule {
+    public static forRoot(settings: ITransportFabricSettings): DynamicModule {
         const providers: Array<Provider> = [
             {
                 provide: LEDGER_SOCKET_NAMESPACE,
@@ -38,8 +40,14 @@ export class LedgerModule {
             },
             {
                 provide: LedgerApiFactory,
-                useFactory: (logger: Logger, database: DatabaseService) => {
-                    return new LedgerApiFactory(logger, database, settings);
+                useFactory: (logger: Logger) => {
+                    return new LedgerApiFactory(logger, settings);
+                }
+            },
+            {
+                provide: LedgerTransportFactory,
+                useFactory: (logger: Logger) => {
+                    return new LedgerTransportFactory(logger, settings);
                 }
             },
 
@@ -52,6 +60,8 @@ export class LedgerModule {
             module: LedgerModule,
             controllers: [
                 LedgerSearchController,
+                LedgerCommandController,
+
                 LedgerInfoGetController,
                 LedgerInfoListController,
                 LedgerBlockGetController,

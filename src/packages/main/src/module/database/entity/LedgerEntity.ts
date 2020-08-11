@@ -5,7 +5,7 @@ import { Column, OneToMany, Entity, Index, PrimaryGeneratedColumn } from 'typeor
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 
 @Entity()
-@Index(['name'])
+@Index(['name'], { unique: true })
 export class LedgerEntity implements Ledger {
     // --------------------------------------------------------------------------
     //

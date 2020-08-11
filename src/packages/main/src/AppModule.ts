@@ -26,12 +26,7 @@ export class AppModule implements OnApplicationBootstrap {
                 TransportModule.forRoot({ type: TransportType.LOCAL }),
                 LedgerModule.forRoot(settings)
             ],
-            providers: [
-                {
-                    provide: AppSettings,
-                    useValue: settings
-                }
-            ],
+            providers: [],
             controllers: []
         };
     }
