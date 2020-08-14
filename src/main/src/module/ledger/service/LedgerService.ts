@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
-import { DateUtil, TransformUtil } from '@ts-core/common/util';
+import { DateUtil } from '@ts-core/common/util';
 import { DatabaseService } from '../../database/DatabaseService';
-import { Ledger, LedgerBlock, LedgerInfo } from '@hlf-explorer/common/ledger';
+import { Ledger } from '@hlf-explorer/common/ledger';
 import { LedgerEntity } from '../../database/entity/LedgerEntity';
 import { LedgerStateChecker } from './LedgerStateChecker';
 import { Transport } from '@ts-core/common/transport';
-import { LedgerMonitorService } from './LedgerMonitorService';
+import { LedgerApiMonitor } from './LedgerApiMonitor';
 
 @Injectable()
 export class LedgerService extends LoggerWrapper {
@@ -24,7 +24,7 @@ export class LedgerService extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private transport: Transport, private database: DatabaseService, private monitor: LedgerMonitorService) {
+    constructor(logger: Logger, private transport: Transport, private database: DatabaseService, private monitor: LedgerApiMonitor) {
         super(logger);
     }
 

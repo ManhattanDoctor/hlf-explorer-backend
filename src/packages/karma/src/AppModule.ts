@@ -5,16 +5,19 @@ import { TransportModule, TransportType } from '@ts-core/backend-nestjs/transpor
 import MemoryStore from 'cache-manager-memory-store';
 import { AppSettings } from './AppSettings';
 import * as _ from 'lodash';
-import { ApiMonitor } from './service/ApiMonitor';
 import { ILogger } from '@ts-core/common/logger';
-import { LedgerApi } from '@hlf-explorer/common/api/ledger';
-import { MonitorService } from './service/MonitorService';
+import { LedgerApi, LedgerApiSocket } from '@hlf-explorer/common/api';
 import { ExplorerService } from './service/ExplorerService';
 import { StateCheckHandler } from './handler/StateCheckHandler';
 import { ActionListController } from './controller/ActionListController';
 import { StatusController } from './controller/StatusController';
 import { BlockParseHandler } from './handler/BlockParseHandler';
 import { DatabaseModule } from './database/DatabaseModule';
+import { UserListCommand } from '@karma/common/transport/command/user';
+import { Transport } from '@ts-core/common/transport';
+import { BlockParseCommand } from './transport/command/BlockParseCommand';
+import { GenesisGetCommand } from '@karma/common/transport/command';
+import { SocketMonitor } from './service/SocketMonitor';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
@@ -35,20 +38,26 @@ export class AppModule implements OnApplicationBootstrap {
             ],
             providers: [
                 {
-                    provide: ApiMonitor,
+                    provide: LedgerApi,
                     inject: [Logger],
                     useFactory: async (logger: ILogger) => {
-                        let item = new ApiMonitor(logger);
+                        let item = new LedgerApi(logger);
                         item.url = settings.hlfExplorerEndpoint;
                         return item;
                     }
                 },
                 {
-                    provide: LedgerApi,
-                    useExisting: ApiMonitor
+                    provide: SocketMonitor,
+                    inject: [Logger, LedgerApi],
+                    useFactory: async (logger: ILogger, api: LedgerApi) => {
+                        return new SocketMonitor(logger, api);
+                    }
+                },
+                {
+                    provide: LedgerApiSocket,
+                    useExisting: SocketMonitor
                 },
 
-                MonitorService,
                 ExplorerService,
 
                 StateCheckHandler,
@@ -64,7 +73,12 @@ export class AppModule implements OnApplicationBootstrap {
     //
     // --------------------------------------------------------------------------
 
-    public constructor(@Inject(ApiMonitor) private monitor: ApiMonitor, private service: ExplorerService) {}
+    public constructor(
+        @Inject(LedgerApiSocket) private monitor: SocketMonitor,
+        private api: LedgerApi,
+        private transport: Transport,
+        private service: ExplorerService
+    ) {}
 
     // --------------------------------------------------------------------------
     //
@@ -73,7 +87,8 @@ export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
 
     public async onApplicationBootstrap(): Promise<void> {
-        // this.transport.send(new LedgerBlockParseCommand({ ledgerId: 1, number: 1 }));
         await Promise.all([this.service.initialize(), this.monitor.initialize()]);
+        // this.transport.send(new BlockParseCommand({ ledgerId: 1, number: 81 }));
+        // console.log(await this.api.commandSendListen(new GenesisGetCommand()));
     }
 }

@@ -4,7 +4,7 @@ import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsNumberString, IsDefined } from 'class-validator';
 import { LedgerBlock, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
-import { ILedgerBlockEventGetResponse, ILedgerBlockEventGetRequest } from '@hlf-explorer/common/api/ledger/event';
+import { ILedgerBlockEventGetResponse, ILedgerBlockEventGetRequest } from '@hlf-explorer/common/api/event';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';

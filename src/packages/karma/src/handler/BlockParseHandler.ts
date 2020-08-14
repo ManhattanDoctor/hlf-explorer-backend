@@ -3,7 +3,7 @@ import { Logger } from '@ts-core/common/logger';
 import { Transport, TransportCommandHandler } from '@ts-core/common/transport';
 import * as _ from 'lodash';
 import { BlockParseCommand, IBlockParseDto } from '../transport/command/BlockParseCommand';
-import { LedgerApi } from '@hlf-explorer/common/api/ledger';
+import { LedgerApi } from '@hlf-explorer/common/api';
 import { DatabaseService } from '../database/DatabaseService';
 import { ActionParser } from '../service/ActionParser';
 import { LedgerBlockEntity } from '../database/entity/LedgerBlockEntity';
@@ -33,14 +33,14 @@ export class BlockParseHandler extends TransportCommandHandler<IBlockParseDto, B
         let block = await this.api.getBlock(params.number);
         try {
             await this.database.getConnection().transaction(async manager => {
+                await manager.save(new LedgerBlockEntity(block));
+                await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: block.number }, manager);
+
                 let parser = new ActionParser(this.logger);
                 let items = _.flatten(await Promise.all(block.transactions.map(item => parser.parse(item))));
                 if (!_.isEmpty(items)) {
                     await manager.save(items);
                 }
-
-                await manager.save(new LedgerBlockEntity(block));
-                await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: block.number }, manager);
             });
         } catch (error) {
             throw new ExtendedError(`Unable to parse block ${block.number}: ${error.message}`);

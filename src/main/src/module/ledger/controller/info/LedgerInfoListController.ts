@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import {
     ApiForbiddenResponse,
     ApiHeader,
@@ -13,15 +13,13 @@ import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common/dto';
 import { Logger } from '@ts-core/common/logger';
-import { TraceUtil } from '@ts-core/common/trace';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerInfo } from '@hlf-explorer/common/ledger';
 import { DatabaseService } from '../../../database/DatabaseService';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { LedgerService } from '../../service/LedgerService';
+import { TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
 import { LedgerEntity } from '../../../database/entity/LedgerEntity';
-import { LedgerMonitorService } from '../../service/LedgerMonitorService';
+import { LedgerApiMonitor } from '../../service/LedgerApiMonitor';
 
 // --------------------------------------------------------------------------
 //
@@ -79,7 +77,7 @@ export class LedgerInfoListController extends DefaultController<LedgerInfoListDt
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private service: LedgerService, private monitor: LedgerMonitorService, private database: DatabaseService) {
+    constructor(logger: Logger, private monitor: LedgerApiMonitor, private database: DatabaseService) {
         super(logger);
     }
 

@@ -1,14 +1,14 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsObject, IsNumberString, IsBoolean } from 'class-validator';
+import { IsObject, IsNumber, IsBoolean } from 'class-validator';
 import * as _ from 'lodash';
 import { ITransportFabricCommandOptions, ITransportCommandFabric } from '@ts-core/blockchain-fabric/transport';
 import { TransformUtil } from '@ts-core/common/util';
 import { TransportCommandFabricAsync, TransportCommandFabric } from '@ts-core/blockchain-fabric/transport/command';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
-import { ILedgerCommandRequest } from '@hlf-explorer/common/api/ledger';
+import { ILedgerCommandRequest } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -30,7 +30,7 @@ export class CommandDto<U = any> implements ILedgerCommandRequest<U> {
     isAsync: boolean;
 
     @ApiProperty()
-    @IsNumberString()
+    @IsNumber()
     ledgerId: number;
 }
 
@@ -62,6 +62,7 @@ export class LedgerCommandController extends DefaultController<CommandDto, any> 
     public async execute(@Body() params: CommandDto): Promise<any> {
         let transport = await this.transport.get(params.ledgerId);
         if (params.isAsync) {
+            console.log(123, await transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.command), params.options));
             return transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.command), params.options);
         } else {
             transport.send(TransformUtil.toClass(TransportCommandFabric, params.command), params.options);

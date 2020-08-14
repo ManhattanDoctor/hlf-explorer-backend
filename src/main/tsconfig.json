@@ -1,0 +1,8 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "./dist"
+    },
+    "include": ["main.ts", "src/**/*", "../../node_modules/@ts-core/**/*", "../../node_modules/@hlf-explorer/**/*"]
+}

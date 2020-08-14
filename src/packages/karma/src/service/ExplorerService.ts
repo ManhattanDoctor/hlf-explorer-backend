@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
-import { DateUtil, ObjectUtil } from '@ts-core/common/util';
+import { DateUtil } from '@ts-core/common/util';
 import { DatabaseService } from '../database/DatabaseService';
 import { StateChecker } from './StateChecker';
-import { ITransport, Transport } from '@ts-core/common/transport';
-import { LedgerApi } from '@hlf-explorer/common/api/ledger';
+import { Transport } from '@ts-core/common/transport';
+import { LedgerApi } from '@hlf-explorer/common/api';
 import { LedgerInfoEntity } from '../database/entity/LedgerInfoEntity';
 import { ILedgerInfo } from '../database/entity/ILedgerInfo';
 import * as _ from 'lodash';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
-import { Ledger } from '@hlf-explorer/common/ledger';
-import { ApiMonitor } from './ApiMonitor';
+import { SocketMonitor } from './SocketMonitor';
 
 @Injectable()
 export class ExplorerService extends LoggerWrapper {
@@ -32,7 +31,7 @@ export class ExplorerService extends LoggerWrapper {
 
     private async createLedger(): Promise<ILedgerInfo> {
         let item = new LedgerInfoEntity();
-        item.name = ApiMonitor.LEDGER_NAME;
+        item.name = SocketMonitor.LEDGER_NAME;
         item.blockHeight = 0;
         item.blockHeightParsed = 0;
         item.blockFrequency = 1 * DateUtil.MILISECONDS_SECOND;
@@ -56,7 +55,7 @@ export class ExplorerService extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     public async getLastBlockHeight(): Promise<number> {
-        let item = await this.api.getInfo(ApiMonitor.LEDGER_NAME);
+        let item = await this.api.getInfo(SocketMonitor.LEDGER_NAME);
         return item.blockLast.number;
     }
 

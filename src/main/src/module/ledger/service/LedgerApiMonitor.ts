@@ -5,15 +5,14 @@ import { MapCollection } from '@ts-core/common/map';
 import * as _ from 'lodash';
 import { Namespace, Socket } from 'socket.io';
 import { LedgerInfo, LedgerBlock, Ledger, LedgerBlocksLast } from '@hlf-explorer/common/ledger';
-import { LEDGER_SOCKET_NAMESPACE, LedgerSocketEvent } from '@hlf-explorer/common/api/ledger';
+import { LEDGER_SOCKET_NAMESPACE, LedgerSocketEvent } from '@hlf-explorer/common/api';
 import { DatabaseService } from '../../database/DatabaseService';
 import { Transport } from '@ts-core/common/transport';
 import { LedgerBlockParsedEvent, ILedgerBlockParsedDto } from '../transport/event/LedgerBlockParsedEvent';
-import { ExtendedError } from '@ts-core/common/error';
 import { TransformUtil } from '@ts-core/common/util';
 
 @WebSocketGateway({ namespace: LEDGER_SOCKET_NAMESPACE })
-export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit<Namespace>, OnGatewayConnection, OnGatewayDisconnect {
+export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Namespace>, OnGatewayConnection, OnGatewayDisconnect {
     // --------------------------------------------------------------------------
     //
     //  Properties
@@ -124,9 +123,8 @@ export class LedgerMonitorService extends LoggerWrapper implements OnGatewayInit
 
     public async handleConnection(client: Socket): Promise<any> {
         try {
-            client.emit(LedgerSocketEvent.LEDGERS, TransformUtil.fromClassMany(this.items.collection));
+            client.emit(LedgerSocketEvent.LEDGER_LIST_RECEIVED, TransformUtil.fromClassMany(this.items.collection));
         } catch (error) {
-            client.emit(LedgerSocketEvent.EXCEPTION, ExtendedError.create(error));
             client.disconnect(true);
         }
     }

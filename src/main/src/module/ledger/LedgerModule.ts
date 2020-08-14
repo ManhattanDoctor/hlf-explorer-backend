@@ -1,15 +1,13 @@
-import { DynamicModule, Provider, CacheModule } from '@nestjs/common';
+import { DynamicModule, Provider } from '@nestjs/common';
 import { LedgerBlockGetController } from './controller/block/LedgerBlockGetController';
 import { LedgerBlockListController } from './controller/block/LedgerBlockListController';
 import { LedgerService } from './service/LedgerService';
 import { LedgerApiFactory } from './service/LedgerApiFactory';
-import { LedgerMonitorService } from './service/LedgerMonitorService';
+import { LedgerApiMonitor } from './service/LedgerApiMonitor';
 import { LedgerBlockParseHandler } from './handler/LedgerBlockParseHandler';
 import { LedgerStateCheckHandler } from './handler/LedgerStateCheckHandler';
-import { LEDGER_SOCKET_NAMESPACE } from '@hlf-explorer/common/api/ledger';
-import { IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
-import { DatabaseService } from '../database/DatabaseService';
-import { Logger } from '@ts-core/common/logger';
+import { LEDGER_SOCKET_NAMESPACE } from '@hlf-explorer/common/api';
+import { Logger, ILogger } from '@ts-core/common/logger';
 import { LedgerBlockTransactionGetController } from './controller/transaction/LedgerBlockTransactionGetController';
 import { LedgerBlockTransactionListController } from './controller/transaction/LedgerBlockTransactionListController';
 import { LedgerSearchController } from './controller/LedgerSearchController';
@@ -40,19 +38,21 @@ export class LedgerModule {
             },
             {
                 provide: LedgerApiFactory,
-                useFactory: (logger: Logger) => {
+                inject: [Logger],
+                useFactory: (logger: ILogger) => {
                     return new LedgerApiFactory(logger, settings);
                 }
             },
             {
                 provide: LedgerTransportFactory,
-                useFactory: (logger: Logger) => {
+                inject: [Logger],
+                useFactory: (logger: ILogger) => {
                     return new LedgerTransportFactory(logger, settings);
                 }
             },
 
             LedgerService,
-            LedgerMonitorService,
+            LedgerApiMonitor,
             LedgerBlockParseHandler,
             LedgerStateCheckHandler
         ];

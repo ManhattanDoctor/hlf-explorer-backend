@@ -3,7 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiProperty } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import * as _ from 'lodash';
-import { LedgerApi } from '@hlf-explorer/common/api/ledger';
+import { LedgerApi } from '@hlf-explorer/common/api';
 import { ExplorerService } from '../service/ExplorerService';
 
 // --------------------------------------------------------------------------

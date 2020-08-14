@@ -4,6 +4,7 @@ import { IsDate, IsUUID, IsNumber, IsOptional, IsString } from 'class-validator'
 import { Column, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
+import { ITransportEvent } from '@ts-core/common/transport';
 
 @Entity()
 @Index(['uid', 'blockId', 'ledgerId', 'name'])
@@ -46,7 +47,7 @@ export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {
     @Column({ type: 'json', nullable: true })
     @IsOptional()
     @IsString()
-    public data?: T;
+    public data?: ITransportEvent<T>;
 
     @Column({ name: 'block_number' })
     @IsNumber()

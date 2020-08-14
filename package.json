@@ -4,14 +4,12 @@
     "description": "Explorer for HLF",
     "author": "Renat Gubaev",
     "license": "ISC",
-    "main": "index.js",
     "scripts": {
-        "submodules:update": "git submodule update --init",
-        "format": "prettier --ignore-path ./.prettierignore --check \"packages/**/*.{ts,js,json}\"",
-        "format:fix": "prettier --ignore-path ./.prettierignore --write \"packages/**/*.{ts,js,json}\" --loglevel warn"
+        "format": "prettier --ignore-path ./.prettierignore --check \"src/**/*.{ts,js,json}\"",
+        "format:fix": "prettier --ignore-path ./.prettierignore --write \"src/**/*.{ts,js,json}\" --loglevel warn"
     },
     "dependencies": {
-        "@hlf-explorer/common": "file:./src/common",
+        "@hlf-explorer/common": "^1.0.5",
         "@nestjs/common": "6.10.11",
         "@nestjs/core": "6.10.11",
         "@nestjs/jwt": "6.1.1",
@@ -26,7 +24,7 @@
         "@ts-core/backend": "^1.0.17",
         "@ts-core/backend-nestjs": "^6.0.12",
         "@ts-core/blockchain-fabric": "^1.0.66",
-        "@ts-core/common": "^1.0.104",
+        "@ts-core/common": "^1.0.106",
         "@types/socket.io": "2.1.4",
         "cache-manager-memory-store": "1.1.0",
         "compression": "1.7.4",

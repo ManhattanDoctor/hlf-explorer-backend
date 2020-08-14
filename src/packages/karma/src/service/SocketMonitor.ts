@@ -1,13 +1,13 @@
 import { ExtendedError } from '@ts-core/common/error';
 import { FilterableMapCollection } from '@ts-core/common/map';
-import { LedgerApi } from '@hlf-explorer/common/api/ledger';
+import { LedgerApi, LedgerApiSocket } from '@hlf-explorer/common/api';
 import { LedgerBlock, LedgerInfo } from '@hlf-explorer/common/ledger';
 import * as _ from 'lodash';
 import { TransformUtil } from '@ts-core/common/util';
 import { ILogger } from '@ts-core/common/logger';
 import { PromiseHandler } from '@ts-core/common/promise';
 
-export class ApiMonitor extends LedgerApi {
+export class SocketMonitor extends LedgerApiSocket {
     // --------------------------------------------------------------------------
     //
     //  Constants
@@ -22,9 +22,7 @@ export class ApiMonitor extends LedgerApi {
     //
     //--------------------------------------------------------------------------
 
-    private items: FilterableMapCollection<LedgerInfo>;
     private promise: PromiseHandler<void, ExtendedError>;
-
     private _ledger: LedgerInfo;
 
     //--------------------------------------------------------------------------
@@ -33,9 +31,9 @@ export class ApiMonitor extends LedgerApi {
     //
     //--------------------------------------------------------------------------
 
-    constructor(logger: ILogger) {
+    constructor(logger: ILogger, private api: LedgerApi) {
         super(logger);
-        this.items = new FilterableMapCollection('id');
+        this.url = api.url;
     }
 
     //--------------------------------------------------------------------------
@@ -62,53 +60,33 @@ export class ApiMonitor extends LedgerApi {
     //
     //--------------------------------------------------------------------------
 
-    protected ledgersHandler(items: Array<LedgerInfo>): void {
-        super.ledgersHandler(items);
+    protected ledgerListReceivedHandler(items: Array<LedgerInfo>): void {
+        super.ledgerListReceivedHandler(items);
 
-        this.items.clear();
-        for (let item of items) {
-            this.items.add(item);
-        }
-
-        if (_.isEmpty(this.items.collection)) {
+        if (_.isEmpty(items)) {
             this.promise.reject(new ExtendedError(`Can't find any ledgers`));
             return;
         }
 
-        this._ledger = _.find(this.items.collection, { name: ApiMonitor.LEDGER_NAME });
+        this._ledger = _.find(items, { name: SocketMonitor.LEDGER_NAME });
         if (_.isNil(this.ledger)) {
-            this.promise.reject(new ExtendedError(`Can't find ${ApiMonitor.LEDGER_NAME} ledger any ledgers`));
+            this.promise.reject(new ExtendedError(`Can't find ${SocketMonitor.LEDGER_NAME} ledger any ledgers`));
             return;
         }
 
-        this.settings.defaultLedgerId = this.ledger.id;
+        this.settings.filterLedgerId = this.api.settings.defaultLedgerId = this.ledger.id;
         this.promise.resolve();
     }
 
-    protected exceptionHandler(error: ExtendedError): void {
-        super.exceptionHandler(error);
-        this.logger.warn(error.message, this.constructor.name);
-    }
-
-    protected socketConnectedHandler(event: any): void {
-        super.socketConnectedHandler(event);
+    protected socketConnectedHandler(): void {
+        super.socketConnectedHandler();
         this.logger.log(`Connected successfully to ledger socket`, this.constructor.name);
     }
 
-    protected socketDisconnectedHandler(event: any): void {
-        super.socketDisconnectedHandler(event);
+    protected socketDisconnectedHandler(): void {
+        super.socketDisconnectedHandler();
         this.logger.error(`Disconnected from ledger socket: close application`, this.constructor.name);
         process.exit(0);
-    }
-
-    //--------------------------------------------------------------------------
-    //
-    // 	Private Properties
-    //
-    //--------------------------------------------------------------------------
-
-    private get logger(): ILogger {
-        return this.http;
     }
 
     //--------------------------------------------------------------------------

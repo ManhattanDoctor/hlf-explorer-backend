@@ -72,33 +72,33 @@ export class ActionParser extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     private async parseUser(transaction: LedgerBlockTransaction): Promise<Array<LedgerActionEntity>> {
-        let item = new LedgerActionEntity(transaction, null, transaction.requestUserId);
+        let item = this.createAction(null, transaction.requestUserId, transaction);
 
         let items = [item];
         if (transaction.requestName === KarmaLedgerCommand.USER_ADD) {
             let response = transaction.response.response as IUIDable;
             item.type = LedgerActionType.USER_ADDED;
             if (transaction.validationCode === FabricTransactionValidationCode.VALID && !_.isNil(response)) {
-                items.push(new LedgerActionEntity(transaction, LedgerActionType.USER_ADDED, response.uid));
+                items.push(this.createAction(LedgerActionType.USER_ADDED, response.uid, transaction));
             }
         } else if (transaction.requestName === KarmaLedgerCommand.USER_EDIT) {
             let request = transaction.request.request as IUserEditDto;
             item.type = LedgerActionType.USER_EDITED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.USER_EDITED, request.uid));
+            items.push(this.createAction(LedgerActionType.USER_EDITED, request.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.USER_REMOVE) {
             let request = transaction.request.request as IUserRemoveDto;
             item.type = LedgerActionType.USER_REMOVED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.USER_REMOVED, request.uid));
+            items.push(this.createAction(LedgerActionType.USER_REMOVED, request.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.USER_CRYPTO_KEY_CHANGE) {
             let request = transaction.request.request as IUserCryptoKeyChangeDto;
             item.type = LedgerActionType.USER_CRYPTO_KEY_CHANGED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.USER_CRYPTO_KEY_CHANGED, request.uid));
+            items.push(this.createAction(LedgerActionType.USER_CRYPTO_KEY_CHANGED, request.uid, transaction));
         }
         return items;
     }
 
     private async parseCompany(transaction: LedgerBlockTransaction): Promise<Array<LedgerActionEntity>> {
-        let item = new LedgerActionEntity(transaction, null, transaction.requestUserId);
+        let item = this.createAction(null, transaction.requestUserId, transaction);
 
         let items = [item];
         if (transaction.requestName === KarmaLedgerCommand.COMPANY_ADD) {
@@ -106,37 +106,37 @@ export class ActionParser extends LoggerWrapper {
             item.type = LedgerActionType.COMPANY_ADDED;
 
             if (transaction.validationCode === FabricTransactionValidationCode.VALID && !_.isNil(response)) {
-                items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_ADDED, response.uid));
+                items.push(this.createAction(LedgerActionType.COMPANY_ADDED, response.uid, transaction));
             }
         } else if (transaction.requestName === KarmaLedgerCommand.COMPANY_EDIT) {
             let request = transaction.request.request as ICompanyEditDto;
             item.type = LedgerActionType.COMPANY_EDITED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_EDITED, request.uid));
+            items.push(this.createAction(LedgerActionType.COMPANY_EDITED, request.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.COMPANY_REMOVE) {
             let request = transaction.request.request as ICompanyRemoveDto;
             item.type = LedgerActionType.COMPANY_REMOVED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_REMOVED, request.uid));
+            items.push(this.createAction(LedgerActionType.COMPANY_REMOVED, request.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.COMPANY_USER_ADD) {
             let request = transaction.request.request as ICompanyUserAddDto;
             item.type = LedgerActionType.COMPANY_USER_ADDED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_USER_ADDED, request.companyUid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_USER_ADDED, request.userUid));
+            items.push(this.createAction(LedgerActionType.COMPANY_USER_ADDED, request.companyUid, transaction));
+            items.push(this.createAction(LedgerActionType.COMPANY_USER_ADDED, request.userUid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.COMPANY_USER_EDIT) {
             let request = transaction.request.request as ICompanyUserAddDto;
             item.type = LedgerActionType.COMPANY_USER_EDITED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_USER_EDITED, request.companyUid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_USER_EDITED, request.userUid));
+            items.push(this.createAction(LedgerActionType.COMPANY_USER_EDITED, request.companyUid, transaction));
+            items.push(this.createAction(LedgerActionType.COMPANY_USER_EDITED, request.userUid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.COMPANY_USER_REMOVE) {
             let request = transaction.request.request as ICompanyUserRemoveDto;
             item.type = LedgerActionType.COMPANY_USER_REMOVED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_USER_REMOVED, request.companyUid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COMPANY_USER_REMOVED, request.userUid));
+            items.push(this.createAction(LedgerActionType.COMPANY_USER_REMOVED, request.companyUid, transaction));
+            items.push(this.createAction(LedgerActionType.COMPANY_USER_REMOVED, request.userUid, transaction));
         }
         return items;
     }
 
     private async parseProject(transaction: LedgerBlockTransaction): Promise<Array<LedgerActionEntity>> {
-        let item = new LedgerActionEntity(transaction, null, transaction.requestUserId);
+        let item = this.createAction(null, transaction.requestUserId, transaction);
 
         let items = [item];
         if (transaction.requestName === KarmaLedgerCommand.PROJECT_ADD) {
@@ -144,56 +144,60 @@ export class ActionParser extends LoggerWrapper {
             item.type = LedgerActionType.PROJECT_ADDED;
 
             if (transaction.validationCode === FabricTransactionValidationCode.VALID && !_.isNil(response)) {
-                items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_ADDED, response.uid));
+                items.push(this.createAction(LedgerActionType.PROJECT_ADDED, response.uid, transaction));
             }
         } else if (transaction.requestName === KarmaLedgerCommand.PROJECT_EDIT) {
             let request = transaction.request.request as IProjectEditDto;
             item.type = LedgerActionType.PROJECT_EDITED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_EDITED, request.uid));
+            items.push(this.createAction(LedgerActionType.PROJECT_EDITED, request.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.PROJECT_REMOVE) {
             let request = transaction.request.request as IProjectRemoveDto;
             item.type = LedgerActionType.PROJECT_REMOVED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_REMOVED, request.uid));
+            items.push(this.createAction(LedgerActionType.PROJECT_REMOVED, request.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.PROJECT_USER_ADD) {
             let request = transaction.request.request as IProjectUserAddDto;
             item.type = LedgerActionType.PROJECT_USER_ADDED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_USER_ADDED, request.projectUid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_USER_ADDED, request.userUid));
+            items.push(this.createAction(LedgerActionType.PROJECT_USER_ADDED, request.projectUid, transaction));
+            items.push(this.createAction(LedgerActionType.PROJECT_USER_ADDED, request.userUid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.PROJECT_USER_EDIT) {
             let request = transaction.request.request as IProjectUserAddDto;
             item.type = LedgerActionType.PROJECT_USER_EDITED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_USER_EDITED, request.projectUid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_USER_EDITED, request.userUid));
+            items.push(this.createAction(LedgerActionType.PROJECT_USER_EDITED, request.projectUid, transaction));
+            items.push(this.createAction(LedgerActionType.PROJECT_USER_EDITED, request.userUid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.PROJECT_USER_REMOVE) {
             let request = transaction.request.request as IProjectUserRemoveDto;
             item.type = LedgerActionType.PROJECT_USER_REMOVED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_USER_REMOVED, request.projectUid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.PROJECT_USER_REMOVED, request.userUid));
+            items.push(this.createAction(LedgerActionType.PROJECT_USER_REMOVED, request.projectUid, transaction));
+            items.push(this.createAction(LedgerActionType.PROJECT_USER_REMOVED, request.userUid, transaction));
         }
         return items;
     }
 
     private async parseCoin(transaction: LedgerBlockTransaction): Promise<Array<LedgerActionEntity>> {
-        let item = new LedgerActionEntity(transaction, null, transaction.requestUserId);
+        let item = this.createAction(null, transaction.requestUserId, transaction);
 
         let items = [item];
         if (transaction.requestName === KarmaLedgerCommand.COIN_EMIT) {
             let request = transaction.request.request as ICoinEmitDto;
             item.type = LedgerActionType.COIN_EMITTED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COIN_DONATED, request.from));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COIN_EMITTED, request.to.uid));
+            items.push(this.createAction(LedgerActionType.COIN_DONATED, request.from, transaction));
+            items.push(this.createAction(LedgerActionType.COIN_EMITTED, request.to.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.COIN_BURN) {
             let request = transaction.request.request as ICoinBurnDto;
             item.type = LedgerActionType.COIN_BURNED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COIN_BURNED, request.from.uid));
+            items.push(this.createAction(LedgerActionType.COIN_BURNED, request.from.uid, transaction));
         } else if (transaction.requestName === KarmaLedgerCommand.COIN_TRANSFER) {
             let request = transaction.request.request as ICoinTransferDto;
             item.type = LedgerActionType.COIN_TRANSFERED;
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COIN_SENT, request.from.uid));
-            items.push(new LedgerActionEntity(transaction, LedgerActionType.COIN_RECEIVED, request.to.uid));
+            items.push(this.createAction(LedgerActionType.COIN_SENT, request.from.uid, transaction));
+            items.push(this.createAction(LedgerActionType.COIN_RECEIVED, request.to.uid, transaction));
         }
 
         return items;
+    }
+
+    private createAction(type: LedgerActionType, subjectUid: string, transaction: LedgerBlockTransaction): LedgerActionEntity {
+        return new LedgerActionEntity(transaction, type, subjectUid);
     }
 
     // --------------------------------------------------------------------------
@@ -221,6 +225,7 @@ export class ActionParser extends LoggerWrapper {
         }
         items = _.compact(items);
         items.forEach(item => (item.uid = LedgerActionEntity.createUid(transaction.request.id, item)));
+        items = _.uniqBy(items, 'uid');
         return items;
     }
 }
