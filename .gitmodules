@@ -1,3 +1,0 @@
-[submodule "src/packages/karma/karma-common"]
-	path = src/packages/karma/karma-common
-	url = git@gitlab.n-t.io:karma/karma-common.git
