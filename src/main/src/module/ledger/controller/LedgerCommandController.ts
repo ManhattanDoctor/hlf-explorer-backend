@@ -62,7 +62,6 @@ export class LedgerCommandController extends DefaultController<CommandDto, any> 
     public async execute(@Body() params: CommandDto): Promise<any> {
         let transport = await this.transport.get(params.ledgerId);
         if (params.isAsync) {
-            console.log(123, await transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.command), params.options));
             return transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.command), params.options);
         } else {
             transport.send(TransformUtil.toClass(TransportCommandFabric, params.command), params.options);

@@ -6,7 +6,13 @@ import MemoryStore from 'cache-manager-memory-store';
 import { AppSettings } from './AppSettings';
 import { DatabaseModule } from './module/database/DatabaseModule';
 import { LedgerModule } from './module/ledger/LedgerModule';
-import { Transport } from '@ts-core/common/transport';
+import { Transport, ITransportEvent } from '@ts-core/common/transport';
+import { FileUtil } from '@ts-core/backend/file';
+import { TransportFabricBlockParser, ITransportFabricBlock } from '@ts-core/blockchain-fabric/transport/block';
+import { IFabricBlock, FabricApi } from '@ts-core/blockchain-fabric/api';
+import { TransformUtil } from '@ts-core/common/util';
+import { LedgerApi } from '@hlf-explorer/common/api';
+import { LedgerApiFactory } from './module/ledger/service/LedgerApiFactory';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
@@ -37,7 +43,7 @@ export class AppModule implements OnApplicationBootstrap {
     //
     // --------------------------------------------------------------------------
 
-    public constructor(@Inject(Logger) private logger: Logger, private transport: Transport) {}
+    public constructor(@Inject(Logger) private logger: Logger, private transport: Transport, private factory: LedgerApiFactory) {}
 
     // --------------------------------------------------------------------------
     //
@@ -46,6 +52,13 @@ export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
 
     public async onApplicationBootstrap(): Promise<void> {
-        // this.transport.send(new LedgerBlockParseCommand({ ledgerId: 1, number: 1 }));
+        /*
+        let api = await this.factory.get(0);
+
+        let parser = new TransportFabricBlockParser();
+        let block = await parser.parse(await api.getBlock(100));
+        console.log(block.events);
+        */
+   
     }
 }
