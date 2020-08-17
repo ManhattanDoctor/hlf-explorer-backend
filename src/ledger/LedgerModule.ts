@@ -17,7 +17,7 @@ import { LedgerInfoGetController } from './controller/info/LedgerInfoGetControll
 import { LedgerInfoListController } from './controller/info/LedgerInfoListController';
 import { ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
 import { LedgerTransportFactory } from './service/LedgerTransportFactory';
-import { LedgerCommandController } from './controller/LedgerCommandController';
+import { LedgerRequestController } from './controller/LedgerRequestController';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -60,7 +60,7 @@ export class LedgerModule {
             module: LedgerModule,
             controllers: [
                 LedgerSearchController,
-                LedgerCommandController,
+                LedgerRequestController,
 
                 LedgerInfoGetController,
                 LedgerInfoListController,
