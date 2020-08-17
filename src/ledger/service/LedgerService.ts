@@ -44,7 +44,7 @@ export class LedgerService extends LoggerWrapper {
         item.name = name;
         item.blockHeight = 0;
         item.blockHeightParsed = 0;
-        item.blockFrequency = 1 * DateUtil.MILISECONDS_SECOND;
+        item.blockFrequency = 3 * DateUtil.MILISECONDS_SECOND;
 
         await this.database.ledgerSave(item);
         this.log(`Ledger "${name}" saved`);

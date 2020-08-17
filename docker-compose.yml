@@ -6,11 +6,11 @@ services:
     env_file:
       - ./dev.env
     volumes:
-      - ./:/app
+      - ./:/app:cached
     depends_on:
       - db
     ports:
-      - 13000:3000
+      - 33000:3000
     working_dir: /app
     command: npm run start:dev
     networks:

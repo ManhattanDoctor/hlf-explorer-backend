@@ -44,13 +44,5 @@ export class AppModule implements OnApplicationBootstrap {
     //
     // --------------------------------------------------------------------------
 
-    public async onApplicationBootstrap(): Promise<void> {
-        /*
-        let api = await this.factory.get(0);
-
-        let parser = new TransportFabricBlockParser();
-        let block = await parser.parse(await api.getBlock(100));
-        console.log(block.events);
-        */
-    }
+    public async onApplicationBootstrap(): Promise<void> {}
 }
