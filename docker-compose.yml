@@ -13,6 +13,9 @@ services:
       - 13000:3000
     working_dir: /app
     command: npm run start:dev
+    networks:
+      - default
+      - ledger
 
   db:
     image: postgres:11.4-alpine
@@ -22,6 +25,14 @@ services:
       - pg_data:/var/lib/postgresql/data
     ports:
       - 35432:5432
+    networks:
+      - default
+      - ledger
 
 volumes:
   pg_data:
+
+networks:
+  ledger:
+    external:
+      name: karma-ledger_basic

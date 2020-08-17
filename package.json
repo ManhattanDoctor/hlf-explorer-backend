@@ -45,16 +45,16 @@
         "pg": "7.14.0",
         "socket.io-client": "^2.2.0",
         "swagger-ui-express": "4.1.1",
-        "typeorm": "^0.2.25",
         "typeorm-naming-strategies": "^1.1.0"
     },
     "devDependencies": {
-        "tslint": "5.20.1",
+        "@types/socket.io-client": "^1.4.33",
         "prettier": "1.19.1",
         "ts-node": "8.5.4",
         "ts-node-dev": "1.0.0-pre.44",
-        "typescript": "3.7.3",
-        "tsconfig-paths": "3.9.0"
+        "tsconfig-paths": "3.9.0",
+        "tslint": "5.20.1",
+        "typescript": "3.7.3"
     },
     "engines": {
         "node": ">= 12.12.18"

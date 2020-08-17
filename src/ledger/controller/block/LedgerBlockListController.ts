@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import {
     ApiForbiddenResponse,
     ApiHeader,
@@ -13,13 +13,11 @@ import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common/dto';
 import { Logger } from '@ts-core/common/logger';
-import { TraceUtil } from '@ts-core/common/trace';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
 import { LedgerBlockEntity } from '../../../database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../../database/DatabaseService';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { LedgerService } from '../../service/LedgerService';
+import { TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
 
 // --------------------------------------------------------------------------
@@ -78,7 +76,7 @@ export class LedgerBlockListController extends DefaultController<LedgerBlockList
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private service: LedgerService, private database: DatabaseService) {
+    constructor(logger: Logger, private database: DatabaseService) {
         super(logger);
     }
 
