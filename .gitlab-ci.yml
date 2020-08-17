@@ -21,7 +21,7 @@ build:
   script:
     - werf build-and-publish --stages-storage :local
   tags:
-    - werf
+    - karma-shell
   except:
     - schedules
 

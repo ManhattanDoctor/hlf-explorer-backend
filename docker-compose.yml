@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   app:
-    image: registry.n-t.io/karma/karma/karma:${TAG:-master}
+    image: registry.n-t.io/karma/hlf-explorer/hlf-explorer:${TAG:-master}
     env_file:
       - ./dev.env
     volumes:
