@@ -6,7 +6,7 @@ services:
     env_file:
       - ./dev.env
     volumes:
-      - ./:/app
+      - ./:/app:cached
     depends_on:
       - db
     ports:
