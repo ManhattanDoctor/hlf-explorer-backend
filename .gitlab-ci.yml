@@ -1,0 +1,38 @@
+before_script:
+  - pwd
+  - type multiwerf && source <(multiwerf use 1.1 beta)
+  - type werf && source <(werf ci-env gitlab --tagging-strategy tag-or-branch --verbose)
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+
+stages:
+  - build
+  - deploy
+  - cleanup
+
+build:
+  stage: build
+  script:
+    - werf build-and-publish --stages-storage :local
+  tags:
+    - werf
+  except:
+    - schedules
+
+cleanup:
+  stage: cleanup
+  script:
+    - type multiwerf && source <(multiwerf use 1.0 beta)
+    - type werf && source <(werf ci-env gitlab --tagging-strategy tag-or-branch --verbose)
+    - docker login -u nobody -p ${WERF_IMAGES_CLEANUP_PASSWORD} ${WERF_IMAGES_REPO}
+    - werf cleanup --stages-storage :local
+  only:
+    - schedules
+  tags:
+    - karma-shell

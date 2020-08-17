@@ -20,16 +20,19 @@ export class DatabaseModule {
                 inject: [Logger],
                 useFactory: async (logger: Logger) => {
                     let config = DatabaseModule.getOrmConfig(settings);
-                    logger.debug(`Connecting to ${config.type} ${settings.databaseHost}:${settings.databasePort}/${settings.databaseName}`, 'DataBaseModule');
+                    logger.debug(
+                        `Connecting to ${config.type} ${settings.databaseHost}:${settings.databasePort}/${settings.databaseName}`,
+                        'DataBaseModule'
+                    );
                     return await createConnection(config);
-                }
+                },
             },
-            DatabaseService
+            DatabaseService,
         ];
         return {
             module: DatabaseModule,
             providers,
-            exports: providers
+            exports: providers,
         };
     }
 
@@ -53,8 +56,8 @@ export class DatabaseModule {
             migrations: [__dirname + '/migration/*.{ts,js}'],
             migrationsRun: false,
             cli: {
-                migrationsDir: 'src/migration'
-            }
+                migrationsDir: 'src/migration',
+            },
         };
     }
 }

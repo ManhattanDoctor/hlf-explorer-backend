@@ -9,8 +9,8 @@ import * as compression from 'compression';
 import * as helmet from 'helmet';
 import * as path from 'path';
 import * as _ from 'lodash';
-import { AppModule } from './src/AppModule';
-import { AppSettings } from './src/AppSettings';
+import { AppModule } from './AppModule';
+import { AppSettings } from './AppSettings';
 
 async function generateDocs(application: INestApplication): Promise<void> {
     let options = new DocumentBuilder()

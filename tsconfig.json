@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "./dist",
         "module": "commonjs",
         "declaration": false,
         "noImplicitAny": false,
@@ -14,5 +16,6 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "newLine": "LF"
-    }
+    },
+    "include": ["src/**/*", "./node_modules/@ts-core/**/*", "./node_modules/@hlf-explorer/**/*"]
 }

@@ -36,17 +36,17 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     @Column()
     @IsString()
     public channel: string;
-    
+
     @Column({ name: 'block_number' })
     @IsNumber()
     public blockNumber: number;
-    
+
     @Column({ name: 'created_date' })
     @IsDate()
     @Type(() => Date)
     public createdDate: Date;
 
-    @Column({ name: 'validation_code' })
+    @Column({ name: 'validation_code', type: 'varchar' })
     @IsEnum(FabricTransactionValidationCode)
     public validationCode: FabricTransactionValidationCode;
 

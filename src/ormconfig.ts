@@ -1,5 +1,5 @@
-import { AppSettings } from './src/AppSettings';
-import { DatabaseModule } from './src/DatabaseModule';
+import { AppSettings } from './AppSettings';
+import { DatabaseModule } from './database/DatabaseModule';
 
 const settings = new AppSettings();
 const config = DatabaseModule.getOrmConfig(settings);

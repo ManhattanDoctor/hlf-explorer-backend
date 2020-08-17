@@ -1,10 +1,19 @@
 {
-    "name": "hlf-explorer",
+    "name": "hlf-explorer-backend",
     "version": "1.0.0",
-    "description": "Explorer for HLF",
+    "description": "",
+    "main": "",
     "author": "Renat Gubaev",
     "license": "ISC",
     "scripts": {
+        "start": "ts-node --transpile-only src/main.ts",
+        "start:dev": "ts-node-dev --transpile-only --ignore-watch node_modules src/main.ts",
+        "build": "tsc",
+        "lint": "echo 1",
+        "typeorm": "ts-node -r tsconfig-paths/register ../../../node_modules/typeorm/cli.js --config ormconfig.ts",
+        "migration:generate": "npm run typeorm migration:generate -- --name Generate",
+        "migration:run": "npm run typeorm migration:run",
+        "migration:create": "npm run typeorm migration:create -- -n",
         "format": "prettier --ignore-path ./.prettierignore --check \"src/**/*.{ts,js,json}\"",
         "format:fix": "prettier --ignore-path ./.prettierignore --write \"src/**/*.{ts,js,json}\" --loglevel warn"
     },
@@ -35,7 +44,9 @@
         "passport-jwt": "4.0.0",
         "pg": "7.14.0",
         "socket.io-client": "^2.2.0",
-        "swagger-ui-express": "4.1.1"
+        "swagger-ui-express": "4.1.1",
+        "typeorm": "^0.2.25",
+        "typeorm-naming-strategies": "^1.1.0"
     },
     "devDependencies": {
         "tslint": "5.20.1",

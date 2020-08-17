@@ -1,10 +1,27 @@
 version: '3.2'
 
 services:
-  hlf-explorer-postgres:
-    image: postgres:11.4-alpine
-    restart: always
+  app:
+    image: registry.n-t.io/karma/karma/karma:${TAG:-master}
     env_file:
-      - ./docker/env/main.env
+      - ./dev.env
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
     ports:
-      - 15432:5432
+      - 13000:3000
+    working_dir: /app
+    command: npm run start:dev
+
+  db:
+    image: postgres:11.4-alpine
+    env_file:
+      - ./dev.env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 35432:5432
+
+volumes:
+  pg_data:
