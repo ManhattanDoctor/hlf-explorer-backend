@@ -41,7 +41,7 @@ export class RequestDto<U = any> implements ILedgerRequestRequest<U> {
 // --------------------------------------------------------------------------
 
 @Controller('api/ledger/request')
-export class LedgerCommandController extends DefaultController<RequestDto, any> {
+export class LedgerRequestController extends DefaultController<RequestDto, any> {
     // --------------------------------------------------------------------------
     //
     //  Constructor

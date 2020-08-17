@@ -27,6 +27,7 @@ async function generateDocs(application: INestApplication): Promise<void> {
 
 async function bootstrap(): Promise<void> {
     let settings = new AppSettings();
+    console.log(settings);
     let logger = (settings.logger = new DefaultLogger(settings.loggerLevel));
 
     let application = await NestFactory.create(AppModule.forRoot(settings), { logger });
