@@ -8,7 +8,7 @@ import { TransformUtil } from '@ts-core/common/util';
 import { TransportCommandFabricAsync, TransportCommandFabric } from '@ts-core/blockchain-fabric/transport/command';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
-import { ILedgerCommandRequest } from '@hlf-explorer/common/api';
+import { ILedgerRequestRequest } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -16,10 +16,10 @@ import { ILedgerCommandRequest } from '@hlf-explorer/common/api';
 //
 // --------------------------------------------------------------------------
 
-export class CommandDto<U = any> implements ILedgerCommandRequest<U> {
+export class RequestDto<U = any> implements ILedgerRequestRequest<U> {
     @ApiProperty()
     @IsObject()
-    command: ITransportCommandFabric<U>;
+    request: ITransportCommandFabric<U>;
 
     @ApiProperty()
     @IsObject()
@@ -40,8 +40,8 @@ export class CommandDto<U = any> implements ILedgerCommandRequest<U> {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/command')
-export class LedgerCommandController extends DefaultController<CommandDto, any> {
+@Controller('api/ledger/request')
+export class LedgerCommandController extends DefaultController<RequestDto, any> {
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -59,12 +59,12 @@ export class LedgerCommandController extends DefaultController<CommandDto, any> 
     // --------------------------------------------------------------------------
 
     @Post()
-    public async execute(@Body() params: CommandDto): Promise<any> {
+    public async execute(@Body() params: RequestDto): Promise<any> {
         let transport = await this.transport.get(params.ledgerId);
         if (params.isAsync) {
-            return transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.command), params.options);
+            return transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.request), params.options);
         } else {
-            transport.send(TransformUtil.toClass(TransportCommandFabric, params.command), params.options);
+            transport.send(TransformUtil.toClass(TransportCommandFabric, params.request), params.options);
         }
     }
 }
