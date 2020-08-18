@@ -46,7 +46,7 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     @Type(() => Date)
     public createdDate: Date;
 
-    @Column({ name: 'validation_code', type: 'varchar' })
+    @Column({ name: 'validation_code', type: 'integer' })
     @IsEnum(FabricTransactionValidationCode)
     public validationCode: FabricTransactionValidationCode;
 
