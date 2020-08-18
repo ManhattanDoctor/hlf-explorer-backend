@@ -6,7 +6,15 @@ import * as _ from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
 import { ILedgerRequestRequest } from '@hlf-explorer/common/api';
-import { ITransportCommand, ITransportCommandOptions, ITransportCommandAsync } from '@ts-core/common/transport';
+import {
+    ITransportCommand,
+    ITransportCommandOptions,
+    ITransportCommandAsync,
+    TransportCommandAsync,
+    TransportCommand,
+} from '@ts-core/common/transport';
+import { TransformUtil } from '@ts-core/common/util';
+import { TransportFabricCommandOptions } from '@ts-core/blockchain-fabric/transport';
 
 // --------------------------------------------------------------------------
 //
@@ -60,9 +68,9 @@ export class LedgerRequestController extends DefaultController<RequestDto, any> 
     public async execute<U, V>(@Body() params: RequestDto<U>): Promise<any> {
         let transport = await this.transport.get(params.ledgerId);
         if (params.isAsync) {
-            return transport.sendListen(params.request as ITransportCommandAsync<U, V>, params.options);
+            return transport.sendListen(TransformUtil.toClass(TransportCommandAsync, params.request), params.options);
         } else {
-            transport.send(params.request, params.options);
+            transport.send(TransformUtil.toClass(TransportCommand, params.request), params.options);
         }
     }
 }
