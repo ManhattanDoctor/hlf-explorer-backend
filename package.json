@@ -10,10 +10,11 @@
         "start:dev": "ts-node-dev --transpile-only --ignore-watch node_modules src/main.ts",
         "build": "tsc",
         "lint": "echo 1",
-        "typeorm": "ts-node -r tsconfig-paths/register ../../../node_modules/typeorm/cli.js --config ormconfig.ts",
+        "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config src/ormconfig.ts",
         "migration:generate": "npm run typeorm migration:generate -- --name Generate",
         "migration:run": "npm run typeorm migration:run",
         "migration:create": "npm run typeorm migration:create -- -n",
+        "schema:drop": "npm run typeorm schema:drop",
         "format": "prettier --ignore-path ./.prettierignore --check \"src/**/*.{ts,js,json}\"",
         "format:fix": "prettier --ignore-path ./.prettierignore --write \"src/**/*.{ts,js,json}\" --loglevel warn"
     },
