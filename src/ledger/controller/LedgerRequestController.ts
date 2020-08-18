@@ -14,7 +14,6 @@ import {
     TransportCommand,
 } from '@ts-core/common/transport';
 import { TransformUtil } from '@ts-core/common/util';
-import { TransportFabricCommandOptions } from '@ts-core/blockchain-fabric/transport';
 
 // --------------------------------------------------------------------------
 //
