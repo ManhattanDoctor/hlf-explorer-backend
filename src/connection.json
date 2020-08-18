@@ -38,6 +38,11 @@
             }
         }
     },
+    "orderers": {
+        "orderer.example.com": {
+            "url": "grpc://orderer.example.com:7050"
+        }
+    },
     "certificateAuthorities": {
         "ca.org1.example.com": {
             "url": "http://ca.org1.example.com:7054",
