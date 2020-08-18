@@ -86,11 +86,11 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
         if (!_.isNil(request)) {
             item.requestId = request.id;
             item.requestName = request.name;
-            if (!_.isNil(request.options)) {
-                item.requestUserId = request.options.userId;
+            if (!_.isNil(request.options) && ObjectUtil.hasOwnProperty(request.options, 'userId')) {
+                item.requestUserId = request.options['userId'];
             }
         }
-
+        
         let response = item.response;
         if (!_.isNil(response) && !_.isNil(response.response)) {
             item.responseErrorCode = ExtendedError.instanceOf(response.response) ? response.response.code : null;

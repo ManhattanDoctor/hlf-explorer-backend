@@ -3,12 +3,10 @@ import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsObject, IsNumber, IsBoolean } from 'class-validator';
 import * as _ from 'lodash';
-import { ITransportFabricCommandOptions, ITransportCommandFabric } from '@ts-core/blockchain-fabric/transport';
-import { TransformUtil } from '@ts-core/common/util';
-import { TransportCommandFabricAsync, TransportCommandFabric } from '@ts-core/blockchain-fabric/transport/command';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
 import { ILedgerRequestRequest } from '@hlf-explorer/common/api';
+import { ITransportCommand, ITransportCommandOptions, ITransportCommandAsync } from '@ts-core/common/transport';
 
 // --------------------------------------------------------------------------
 //
@@ -19,11 +17,11 @@ import { ILedgerRequestRequest } from '@hlf-explorer/common/api';
 export class RequestDto<U = any> implements ILedgerRequestRequest<U> {
     @ApiProperty()
     @IsObject()
-    request: ITransportCommandFabric<U>;
+    request: ITransportCommand<U>;
 
     @ApiProperty()
     @IsObject()
-    options: ITransportFabricCommandOptions;
+    options: ITransportCommandOptions;
 
     @ApiProperty()
     @IsBoolean()
@@ -59,12 +57,12 @@ export class LedgerRequestController extends DefaultController<RequestDto, any> 
     // --------------------------------------------------------------------------
 
     @Post()
-    public async execute(@Body() params: RequestDto): Promise<any> {
+    public async execute<U, V>(@Body() params: RequestDto<U>): Promise<any> {
         let transport = await this.transport.get(params.ledgerId);
         if (params.isAsync) {
-            return transport.sendListen(TransformUtil.toClass(TransportCommandFabricAsync, params.request), params.options);
+            return transport.sendListen(params.request as ITransportCommandAsync<U, V>, params.options);
         } else {
-            transport.send(TransformUtil.toClass(TransportCommandFabric, params.request), params.options);
+            transport.send(params.request, params.options);
         }
     }
 }

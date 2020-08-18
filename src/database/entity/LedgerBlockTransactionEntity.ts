@@ -2,12 +2,13 @@ import { ObjectUtil } from '@ts-core/common/util';
 import { Exclude, Type } from 'class-transformer';
 import { IsEnum, IsUUID, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ITransportFabricTransactionChaincode } from '@ts-core/blockchain-fabric/transport/block';
-import { ITransportFabricRequestPayload } from '@ts-core/blockchain-fabric/transport/TransportFabricRequestPayload';
-import { ITransportFabricResponsePayload } from '@ts-core/blockchain-fabric/transport/TransportFabricResponsePayload';
-import { FabricTransactionValidationCode } from '@ts-core/blockchain-fabric/api';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
-import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
+import {
+    LedgerBlockTransaction,
+    ILedgerBlockTransactionResponsePayload,
+    ILedgerBlockTransactionRequestPayload,
+    ILedgerBlockTransactionChaincode,
+} from '@hlf-explorer/common/ledger';
 
 @Entity()
 @Index(['hash', 'blockId', 'requestId', 'requestUserId', 'ledgerId'])
@@ -46,21 +47,21 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     @Type(() => Date)
     public createdDate: Date;
 
-    @Column({ name: 'validation_code', type: 'integer' })
-    @IsEnum(FabricTransactionValidationCode)
-    public validationCode: FabricTransactionValidationCode;
+    @Column({ name: 'validation_code' })
+    @IsNumber()
+    public validationCode: number;
 
     @Column({ type: 'json', nullable: true })
     @IsOptional()
-    public chaincode: ITransportFabricTransactionChaincode;
+    public chaincode: ILedgerBlockTransactionChaincode;
 
     @Column({ type: 'json', nullable: true })
     @IsOptional()
-    public request: ITransportFabricRequestPayload;
+    public request: ILedgerBlockTransactionRequestPayload;
 
     @Column({ type: 'json', nullable: true })
     @IsOptional()
-    public response: ITransportFabricResponsePayload;
+    public response: ILedgerBlockTransactionResponsePayload;
 
     @Column({ name: 'request_id', nullable: true })
     @IsOptional()
