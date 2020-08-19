@@ -18,6 +18,8 @@ import { LedgerInfoListController } from './controller/info/LedgerInfoListContro
 import { ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
 import { LedgerTransportFactory } from './service/LedgerTransportFactory';
 import { LedgerRequestController } from './controller/LedgerRequestController';
+import { LedgerGuard } from './service/guard/LedgerGuard';
+import { LedgerGuardPaginable } from './service/guard/LedgerGuardPaginable';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -50,6 +52,9 @@ export class LedgerModule {
                     return new LedgerTransportFactory(logger, settings);
                 }
             },
+
+            LedgerGuard,
+            LedgerGuardPaginable,
 
             LedgerService,
             LedgerApiMonitor,

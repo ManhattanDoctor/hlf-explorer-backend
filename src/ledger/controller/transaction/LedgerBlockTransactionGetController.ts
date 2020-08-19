@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
@@ -11,6 +11,7 @@ import { ExtendedError } from '@ts-core/common/error';
 import { TransformUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
 import { Validator } from 'class-validator';
+import { LedgerGuard, ILedgerHolder } from '../../service/guard/LedgerGuard';
 
 // --------------------------------------------------------------------------
 //
@@ -24,8 +25,8 @@ export class LedgerBlockTransactionGetRequest implements ILedgerBlockTransaction
     hash: string;
 
     @ApiProperty()
-    @IsNumberString()
-    ledgerId: number;
+    @IsString()
+    ledgerName: string;
 }
 
 export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactionGetResponse {
@@ -41,8 +42,10 @@ export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactio
 // --------------------------------------------------------------------------
 
 @Controller('api/ledger/transaction')
-export class LedgerBlockTransactionGetController extends DefaultController<LedgerBlockTransactionGetRequest, LedgerBlockTransactionGetResponse> {
-
+export class LedgerBlockTransactionGetController extends DefaultController<
+    LedgerBlockTransactionGetRequest,
+    LedgerBlockTransactionGetResponse
+> {
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -61,10 +64,12 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
 
     @Get()
     @ApiOperation({ summary: `Get block transaction by hash` })
-    @ApiNotFoundResponse({ description: `Not found` })
-    @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
-    public async execute(@Query() params: LedgerBlockTransactionGetRequest): Promise<LedgerBlockTransactionGetResponse> {
+    @UseGuards(LedgerGuard)
+    public async executeExtended(
+        @Query() params: LedgerBlockTransactionGetRequest,
+        @Req() holder: ILedgerHolder
+    ): Promise<LedgerBlockTransactionGetResponse> {
         if (_.isNil(params.hash)) {
             throw new ExtendedError(`Block hash is nil`, HttpStatus.BAD_REQUEST);
         }
@@ -74,7 +79,7 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
         });
         */
 
-        let item = await this.getItem(params);
+        let item = await this.getItem(params, holder.ledger.id);
         if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find transaction "${params.hash}" hash`, HttpStatus.NOT_FOUND);
         }
@@ -82,9 +87,8 @@ export class LedgerBlockTransactionGetController extends DefaultController<Ledge
         return { value: item };
     }
 
-
-    private async getItem(params: ILedgerBlockTransactionGetRequest): Promise<LedgerBlockTransaction> {
-        let conditions = { ledgerId: params.ledgerId, hash: params.hash };
+    private async getItem(params: ILedgerBlockTransactionGetRequest, ledgerId: number): Promise<LedgerBlockTransaction> {
+        let conditions = { hash: params.hash, ledgerId };
         let item = await this.database.ledgerBlockTransaction.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;
     }

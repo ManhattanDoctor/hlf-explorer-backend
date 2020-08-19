@@ -1,14 +1,15 @@
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsDefined, IsNumberString } from 'class-validator';
+import { IsDefined, IsString } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockGetResponse, ILedgerBlockGetRequest } from '@hlf-explorer/common/api/block';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import { TransformUtil } from '@ts-core/common/util';
+import { LedgerGuard, ILedgerHolder } from '../../service/guard/LedgerGuard';
 
 // --------------------------------------------------------------------------
 //
@@ -22,8 +23,8 @@ export class LedgerBlockGetRequest implements ILedgerBlockGetRequest {
     hashOrNumber: number | string;
 
     @ApiProperty()
-    @IsNumberString()
-    ledgerId: number;
+    @IsString()
+    ledgerName: string;
 }
 
 export class LedgerBlockGetResponse implements ILedgerBlockGetResponse {
@@ -58,20 +59,18 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
 
     @Get()
     @ApiOperation({ summary: `Get ledger block by number or hash` })
-    @ApiNotFoundResponse({ description: `Not found` })
-    @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
-    public async execute(@Query() params: LedgerBlockGetRequest): Promise<LedgerBlockGetResponse> {
+    @UseGuards(LedgerGuard)
+    public async executeExtended(@Query() params: LedgerBlockGetRequest, @Req() holder: ILedgerHolder): Promise<LedgerBlockGetResponse> {
         if (_.isNil(params.hashOrNumber)) {
             throw new ExtendedError(`Block hash or number is nil`, HttpStatus.BAD_REQUEST);
         }
-
         /*
         let item = await this.cache.wrap<LedgerBlock>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
         */
-        let item = await this.getItem(params);
+        let item = await this.getItem(params, holder.ledger.id);
         if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find block "${params.hashOrNumber}" hash or number`, HttpStatus.NOT_FOUND);
         }
@@ -79,8 +78,8 @@ export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRe
         return { value: item };
     }
 
-    private async getItem(params: ILedgerBlockGetRequest): Promise<LedgerBlock> {
-        let conditions = { ledgerId: params.ledgerId } as Partial<LedgerBlock>;
+    private async getItem(params: ILedgerBlockGetRequest, ledgerId: number): Promise<LedgerBlock> {
+        let conditions = { ledgerId } as Partial<LedgerBlock>;
         if (!_.isNaN(Number(params.hashOrNumber))) {
             conditions.number = Number(params.hashOrNumber);
         } else {

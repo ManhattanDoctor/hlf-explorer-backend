@@ -1,14 +1,5 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import {
-    ApiForbiddenResponse,
-    ApiHeader,
-    ApiOkResponse,
-    ApiOperation,
-    ApiProperty,
-    ApiPropertyOptional,
-    ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse
-} from '@nestjs/swagger';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common/dto';
@@ -16,10 +7,10 @@ import { Logger } from '@ts-core/common/logger';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { DatabaseService } from '../../../database/DatabaseService';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { LedgerService } from '../../service/LedgerService';
+import { TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
 import { LedgerBlockEventEntity } from '../../../database/entity/LedgerBlockEventEntity';
+import { LedgerGuardPaginable } from '../../service/guard/LedgerGuardPaginable';
 
 // --------------------------------------------------------------------------
 //
@@ -89,16 +80,11 @@ export class LedgerBlockEventListController extends DefaultController<LedgerBloc
 
     @Get()
     @ApiOperation({ summary: `Ledger events list` })
-    @ApiHeader({ name: `x-token`, description: `Authorization token`, required: true })
-    @ApiUnauthorizedResponse({ description: `Authorization failed` })
-    @ApiTooManyRequestsResponse({ description: `Too many requests` })
-    @ApiForbiddenResponse({ description: `Access forbidden` })
     @ApiOkResponse({ type: LedgerBlockEventListDtoResponse })
-    public async executeExtended(@Query({ transform: Paginable.transform }) params: LedgerBlockEventListDto): Promise<LedgerBlockEventListDtoResponse> {
-        if (_.isNil(params.conditions)) {
-            params.conditions = {};
-        }
-
+    @UseGuards(LedgerGuardPaginable)
+    public async executeExtended(
+        @Query({ transform: Paginable.transform }) params: LedgerBlockEventListDto
+    ): Promise<LedgerBlockEventListDtoResponse> {
         let query = this.database.ledgerBlockEvent.createQueryBuilder('item');
         return TypeormUtil.toPagination(query, params, this.transform);
     }

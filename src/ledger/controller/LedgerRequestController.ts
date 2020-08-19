@@ -1,7 +1,7 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsObject, IsNumber, IsBoolean } from 'class-validator';
+import { IsObject, IsString, IsBoolean } from 'class-validator';
 import * as _ from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
@@ -14,6 +14,7 @@ import {
     TransportCommand,
 } from '@ts-core/common/transport';
 import { TransformUtil } from '@ts-core/common/util';
+import { LedgerGuard, ILedgerHolder } from '../service/guard/LedgerGuard';
 
 // --------------------------------------------------------------------------
 //
@@ -35,8 +36,8 @@ export class RequestDto<U = any> implements ILedgerRequestRequest<U> {
     isAsync: boolean;
 
     @ApiProperty()
-    @IsNumber()
-    ledgerId: number;
+    @IsString()
+    ledgerName: string;
 }
 
 // --------------------------------------------------------------------------
@@ -53,7 +54,7 @@ export class LedgerRequestController extends DefaultController<RequestDto, any> 
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private transport: LedgerTransportFactory) {
+    constructor(logger: Logger, private factory: LedgerTransportFactory) {
         super(logger);
     }
 
@@ -64,8 +65,9 @@ export class LedgerRequestController extends DefaultController<RequestDto, any> 
     // --------------------------------------------------------------------------
 
     @Post()
-    public async execute<U, V>(@Body() params: RequestDto<U>): Promise<any> {
-        let transport = await this.transport.get(params.ledgerId);
+    @UseGuards(LedgerGuard)
+    public async executeExtended<U>(@Body() params: RequestDto<U>, @Req() holder: ILedgerHolder): Promise<any> {
+        let transport = await this.factory.get(holder.ledger.id);
         if (params.isAsync) {
             return transport.sendListen(TransformUtil.toClass(TransportCommandAsync, params.request), params.options);
         } else {

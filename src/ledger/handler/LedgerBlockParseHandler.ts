@@ -22,7 +22,7 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private api: LedgerApiFactory) {
+    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private factory: LedgerApiFactory) {
         super(logger, transport, LedgerBlockParseCommand.NAME);
     }
 
@@ -34,7 +34,7 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
 
     protected async execute(params: ILedgerBlockParseDto): Promise<void> {
         this.log(`Parsing block #${params.number} for ${params.ledgerId} ledger...`);
-        let api = await this.api.get(params.ledgerId);
+        let api = await this.factory.get(params.ledgerId);
         let parser = new TransportFabricBlockParser();
 
         let rawBlock = await api.getBlock(params.number);

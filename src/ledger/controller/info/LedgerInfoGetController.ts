@@ -57,8 +57,6 @@ export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequ
 
     @Get()
     @ApiOperation({ summary: `Get ledger info by id` })
-    @ApiNotFoundResponse({ description: `Not found` })
-    @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerInfo })
     public async execute(@Query() params: LedgerInfoGetRequest): Promise<LedgerInfoGetResponse> {
         if (_.isNil(params.nameOrId)) {

@@ -19,7 +19,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private api: LedgerApiFactory) {
+    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private factory: LedgerApiFactory) {
         super(logger, transport, LedgerStateCheckCommand.NAME);
     }
 
@@ -71,7 +71,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
     }
 
     protected async getLastBlockHeight(ledger: Ledger): Promise<number> {
-        let api = await this.api.get(ledger.id);
+        let api = await this.factory.get(ledger.id);
         return (await api.getBlockNumber()) - 1;
     }
 

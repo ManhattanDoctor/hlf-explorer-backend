@@ -1,17 +1,17 @@
-import { Controller, Get, Param, HttpStatus, Body, Inject, CACHE_MANAGER, Query } from '@nestjs/common';
+import { Controller, Get, Param, HttpStatus, Body, Inject, CACHE_MANAGER, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsNumberString, IsDefined } from 'class-validator';
-import { LedgerBlock, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
+import { IsString, IsDefined } from 'class-validator';
+import { LedgerBlock, LedgerBlockEvent, Ledger } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockEventGetResponse, ILedgerBlockEventGetRequest } from '@hlf-explorer/common/api/event';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
-import { DateUtil, TransformUtil, ObjectUtil } from '@ts-core/common/util';
+import { TransformUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
-import { LedgerService } from '../../service/LedgerService';
-import { IsUUID, Validator } from 'class-validator';
+import { IsUUID } from 'class-validator';
+import { LedgerGuard, ILedgerHolder } from '../../service/guard/LedgerGuard';
 
 // --------------------------------------------------------------------------
 //
@@ -25,8 +25,8 @@ export class LedgerBlockEventGetRequest implements ILedgerBlockEventGetRequest {
     uid: string;
 
     @ApiProperty()
-    @IsNumberString()
-    ledgerId: number;
+    @IsString()
+    ledgerName: string;
 }
 
 export class LedgerBlockEventGetResponse implements ILedgerBlockEventGetResponse {
@@ -61,16 +61,18 @@ export class LedgerBlockEventGetController extends DefaultController<LedgerBlock
 
     @Get()
     @ApiOperation({ summary: `Get block event by uid` })
-    @ApiNotFoundResponse({ description: `Not found` })
-    @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
-    public async execute(@Query() params: LedgerBlockEventGetRequest): Promise<LedgerBlockEventGetResponse> {
+    @UseGuards(LedgerGuard)
+    public async executeExtended(
+        @Query() params: LedgerBlockEventGetRequest,
+        @Req() holder: ILedgerHolder
+    ): Promise<LedgerBlockEventGetResponse> {
         /*
         let item = await this.cache.wrap<LedgerBlockEvent>(this.getCacheKey(params), () => this.getItem(params), {
             ttl: DateUtil.MILISECONDS_DAY / DateUtil.MILISECONDS_SECOND
         });
         */
-        let item = await this.getItem(params);
+        let item = await this.getItem(params, holder.ledger.id);
         if (_.isNil(item)) {
             throw new ExtendedError(`Unable to find event "${params.uid}" uid`, HttpStatus.NOT_FOUND);
         }
@@ -84,11 +86,11 @@ export class LedgerBlockEventGetController extends DefaultController<LedgerBlock
     // --------------------------------------------------------------------------
 
     private getCacheKey(params: ILedgerBlockEventGetRequest): string {
-        return `${params.ledgerId}:event:${params.uid}`;
+        return `${params.ledgerName}:event:${params.uid}`;
     }
 
-    private async getItem(params: ILedgerBlockEventGetRequest): Promise<LedgerBlockEvent> {
-        let conditions = { ledgerId: params.ledgerId, uid: params.uid } as Partial<LedgerBlockEvent>;
+    private async getItem(params: ILedgerBlockEventGetRequest, ledgerId: number): Promise<LedgerBlockEvent> {
+        let conditions = { uid: params.uid, ledgerId } as Partial<LedgerBlockEvent>;
         let item = await this.database.ledgerBlockEvent.findOne(conditions);
         return !_.isNil(item) ? TransformUtil.fromClass(item) : null;
     }

@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
     ApiForbiddenResponse,
     ApiHeader,
@@ -7,7 +7,7 @@ import {
     ApiProperty,
     ApiPropertyOptional,
     ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse
+    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
@@ -19,6 +19,7 @@ import { LedgerBlockEntity } from '../../../database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
+import { LedgerGuardPaginable } from '../../service/guard/LedgerGuardPaginable';
 
 // --------------------------------------------------------------------------
 //
@@ -88,16 +89,11 @@ export class LedgerBlockListController extends DefaultController<LedgerBlockList
 
     @Get()
     @ApiOperation({ summary: `Ledger block list` })
-    @ApiHeader({ name: `x-token`, description: `Authorization token`, required: true })
-    @ApiUnauthorizedResponse({ description: `Authorization failed` })
-    @ApiTooManyRequestsResponse({ description: `Too many requests` })
-    @ApiForbiddenResponse({ description: `Access forbidden` })
     @ApiOkResponse({ type: LedgerBlockListDtoResponse })
-    public async executeExtended(@Query({ transform: Paginable.transform }) params: LedgerBlockListDto): Promise<LedgerBlockListDtoResponse> {
-        if (_.isNil(params.conditions)) {
-            params.conditions = {};
-        }
-
+    @UseGuards(LedgerGuardPaginable)
+    public async executeExtended(
+        @Query({ transform: Paginable.transform }) params: LedgerBlockListDto
+    ): Promise<LedgerBlockListDtoResponse> {
         let query = this.database.ledgerBlock
             .createQueryBuilder('item')
             .innerJoinAndSelect('item.events', 'events')

@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
     ApiForbiddenResponse,
     ApiHeader,
@@ -7,7 +7,7 @@ import {
     ApiProperty,
     ApiPropertyOptional,
     ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse
+    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
@@ -20,6 +20,7 @@ import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
 import { LedgerService } from '../../service/LedgerService';
 import * as _ from 'lodash';
 import { LedgerBlockTransactionEntity } from '../../../database/entity/LedgerBlockTransactionEntity';
+import { LedgerGuardPaginable } from '../../service/guard/LedgerGuardPaginable';
 
 // --------------------------------------------------------------------------
 //
@@ -70,7 +71,10 @@ export class LedgerBlockTransactionListDtoResponse implements IPagination<Ledger
 // --------------------------------------------------------------------------
 
 @Controller('api/ledger/transactions')
-export class LedgerBlockTransactionListController extends DefaultController<LedgerBlockTransactionListDto, LedgerBlockTransactionListDtoResponse> {
+export class LedgerBlockTransactionListController extends DefaultController<
+    LedgerBlockTransactionListDto,
+    LedgerBlockTransactionListDtoResponse
+> {
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -89,18 +93,11 @@ export class LedgerBlockTransactionListController extends DefaultController<Ledg
 
     @Get()
     @ApiOperation({ summary: `Ledger transactions list` })
-    @ApiHeader({ name: `x-token`, description: `Authorization token`, required: true })
-    @ApiUnauthorizedResponse({ description: `Authorization failed` })
-    @ApiTooManyRequestsResponse({ description: `Too many requests` })
-    @ApiForbiddenResponse({ description: `Access forbidden` })
     @ApiOkResponse({ type: LedgerBlockTransactionListDtoResponse })
+    @UseGuards(LedgerGuardPaginable)
     public async executeExtended(
         @Query({ transform: Paginable.transform }) params: LedgerBlockTransactionListDto
     ): Promise<LedgerBlockTransactionListDtoResponse> {
-        if (_.isNil(params.conditions)) {
-            params.conditions = {};
-        }
-        
         let query = this.database.ledgerBlockTransaction.createQueryBuilder('item');
         return TypeormUtil.toPagination(query, params, this.transform);
     }

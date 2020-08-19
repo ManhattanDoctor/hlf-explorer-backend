@@ -1,8 +1,8 @@
-import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus, Query, Res, Req } from '@nestjs/common';
+import { ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsDefined, IsNumberString, IsEnum } from 'class-validator';
+import { IsDefined, IsString, IsEnum } from 'class-validator';
 import { LedgerBlock, LedgerBlockTransaction, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { ILedgerSearchRequest, ILedgerSearchResponse } from '@hlf-explorer/common/api';
 import * as _ from 'lodash';
@@ -21,8 +21,8 @@ export class LedgerSearchRequest implements ILedgerSearchRequest {
     query: any;
 
     @ApiProperty()
-    @IsNumberString()
-    ledgerId: number;
+    @IsString()
+    ledgerName: string;
 }
 
 export class LedgerSearchResponse implements ILedgerSearchResponse {
@@ -66,10 +66,8 @@ export class LedgerSearchController extends DefaultController<LedgerSearchReques
 
     @Get()
     @ApiOperation({ summary: `Search ledger block, transaction or event` })
-    @ApiNotFoundResponse({ description: `Not found` })
-    @ApiBadRequestResponse({ description: `Bad request` })
     @ApiOkResponse({ type: LedgerBlock })
-    public async executeExtended(@Query() params: LedgerSearchRequest, @Res() response): Promise<LedgerSearchResponse> {
+    public async executeExtended(@Query() params: LedgerSearchRequest, @Res() response: any): Promise<LedgerSearchResponse> {
         let value = _.trim(params.query);
         if (_.isNil(value)) {
             throw new ExtendedError(`Query is nil`, HttpStatus.BAD_REQUEST);
@@ -82,7 +80,7 @@ export class LedgerSearchController extends DefaultController<LedgerSearchReques
         } else {
             url = `transaction?hashOrUid=${value}`;
         }
-        url = `${url}&ledgerId=${params.ledgerId}`;
+        url = `${url}&ledgerName=${params.ledgerName}`;
         return response.redirect(url);
     }
 }

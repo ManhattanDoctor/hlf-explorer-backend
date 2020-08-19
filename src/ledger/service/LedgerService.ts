@@ -7,17 +7,10 @@ import { LedgerEntity } from '../../database/entity/LedgerEntity';
 import { LedgerStateChecker } from './LedgerStateChecker';
 import { Transport } from '@ts-core/common/transport';
 import { LedgerApiMonitor } from './LedgerApiMonitor';
+import * as _ from 'lodash';
 
 @Injectable()
 export class LedgerService extends LoggerWrapper {
-    // --------------------------------------------------------------------------
-    //
-    //  Private Properties
-    //
-    // --------------------------------------------------------------------------
-
-    private ledger: Ledger;
-
     // --------------------------------------------------------------------------
     //
     //  Constructor
@@ -34,13 +27,8 @@ export class LedgerService extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    private async ledgerGet(name: string): Promise<Ledger> {
-        let item = await this.database.ledger.findOne({ name });
-        if (item) {
-            return item.toObject();
-        }
-
-        item = new LedgerEntity();
+    private async createLedger(name: string): Promise<Ledger> {
+        let item = new LedgerEntity();
         item.name = name;
         item.blockHeight = 0;
         item.blockHeightParsed = 0;
@@ -58,20 +46,23 @@ export class LedgerService extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     public async initialize(): Promise<void> {
-        let karma = (this.ledger = await this.ledgerGet('Karma'));
-        await this.monitor.initialize([karma]);
-
-        let checker = new LedgerStateChecker(this.logger, this.transport, karma);
-        checker.start();
+        let items = [];
+        for (let name of ['Karma']) {
+            let item = await this.ledgerGet(name);
+            if (_.isNil(item)) {
+                item = await this.createLedger(name);
+            }
+            items.push(item);
+        }
+        items.forEach(item => {
+            let checker = new LedgerStateChecker(this.logger, this.transport, item);
+            checker.start();
+        });
+        await this.monitor.initialize(items);
     }
-
-    // --------------------------------------------------------------------------
-    //
-    //  Public Properties
-    //
-    // --------------------------------------------------------------------------
-
-    public get ledgerId(): number {
-        return this.ledger.id;
+    
+    public async ledgerGet(name: string): Promise<Ledger> {
+        let item = await this.database.ledger.findOne({ name });
+        return !_.isNil(item) ? item.toObject() : null;
     }
 }
