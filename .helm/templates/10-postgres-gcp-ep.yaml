@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-gcp
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: postgres-gcp
+subsets:
+- addresses:
+  - ip: {{ pluck .Values.global.env .Values.postgres_gcp.host | first | default .Values.postgres_gcp.host._default }}
+  ports:
+  - port: 5432

@@ -1,0 +1,19 @@
+registry:
+  secret_name: registrysecret
+
+hlf-explorer:
+  image: karma
+
+postgres_gcp:
+  host:
+    develop: '10.88.0.2'
+    _default: 'none'
+  db:
+    develop: 'hlf-explorer'
+    _default: 'hlf-explorer'
+  user:
+    develop: 'hlf-explorer'
+    _default: 'hlf-explorer'
+  port:
+    _default: '5432'
+

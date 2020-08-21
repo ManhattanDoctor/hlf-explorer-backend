@@ -36,4 +36,6 @@ migrate:
 build:
 	werf build --stages-storage :local --introspect-error
 
+werf-render:
+	werf helm render --set "global.env=develop"
 
