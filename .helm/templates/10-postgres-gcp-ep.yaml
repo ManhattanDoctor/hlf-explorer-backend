@@ -2,19 +2,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-gcp
+  name: postgres-gcp-explorer
 spec:
   ports:
-  - port: 5432
-    protocol: TCP
-    targetPort: 5432
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
 ---
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: postgres-gcp
+  name: postgres-gcp-explorer
 subsets:
-- addresses:
-  - ip: {{ pluck .Values.global.env .Values.postgres_gcp.host | first | default .Values.postgres_gcp.host._default }}
-  ports:
-  - port: 5432
+  - addresses:
+      - ip: { { pluck .Values.global.env .Values.postgres_gcp.host | first | default .Values.postgres_gcp.host._default } }
+    ports:
+      - port: 5432
