@@ -5,6 +5,7 @@ before_script:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  CI_NAMESPACE: ${CI_ENVIRONMENT_SLUG}
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -24,6 +25,36 @@ build:
     - karma-shell
   except:
     - schedules
+
+.base_deploy:
+  script:
+    - set -x
+    - werf deploy --stages-storage :local
+      --namespace ${CI_NAMESPACE}
+      --set "global.env=${KARMA_ENV}"
+      --set "global.ci_url=$(cut -d / -f 3 <<< $CI_ENVIRONMENT_URL)"
+      --timeout "${DEPLOY_TIMEOUT:-600}"
+  tags:
+    - karma-shell
+  except:
+    - schedules
+  stage: deploy
+  dependencies:
+    - build
+
+to develop:
+  extends: .base_deploy
+  environment:
+    name: hlf-explorer
+    url: http://${CI_ENVIRONMENT_SLUG}.karma.n-t.io
+  variables:
+    WERF_KUBE_CONTEXT: karma-dev
+    KARMA_ENV: develop
+    CI_NAMESPACE: karma-develop
+  only:
+    - master
+  dependencies:
+    - build
 
 cleanup:
   stage: cleanup
