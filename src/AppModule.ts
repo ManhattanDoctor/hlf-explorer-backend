@@ -7,6 +7,7 @@ import { AppSettings } from './AppSettings';
 import { DatabaseModule } from './database/DatabaseModule';
 import { LedgerModule } from './ledger/LedgerModule';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HealthcheckModule } from './healthcheck/HealthcheckModule';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
@@ -26,6 +27,7 @@ export class AppModule implements OnApplicationBootstrap {
                 DatabaseModule.forRoot(),
                 TransportModule.forRoot({ type: TransportType.LOCAL }),
                 LedgerModule.forRoot(settings),
+                HealthcheckModule,
             ],
             providers: [],
             controllers: [],
