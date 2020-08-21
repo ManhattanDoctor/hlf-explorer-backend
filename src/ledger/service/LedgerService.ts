@@ -46,6 +46,7 @@ export class LedgerService extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     public async initialize(): Promise<void> {
+        this.log('Try to initialize');
         let items = [];
         for (let name of ['Karma']) {
             let item = await this.ledgerGet(name);
@@ -60,7 +61,7 @@ export class LedgerService extends LoggerWrapper {
         });
         await this.monitor.initialize(items);
     }
-    
+
     public async ledgerGet(name: string): Promise<Ledger> {
         let item = await this.database.ledger.findOne({ name });
         return !_.isNil(item) ? item.toObject() : null;
