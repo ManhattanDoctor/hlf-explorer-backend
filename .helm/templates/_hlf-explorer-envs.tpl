@@ -15,10 +15,9 @@
   value: "{{ pluck .Values.global.env .Values.postgres_gcp.port | first | default .Values.postgres_gcp.port._default }}"
 
 - name: LOGGER_LEVEL
-  value: 3
-
+  value: "3"
 - name: WEB_PORT
-  value: 3000
+  value: "3000"
 
 - name: FABRIC_IDENTITY
   value: "user1"
