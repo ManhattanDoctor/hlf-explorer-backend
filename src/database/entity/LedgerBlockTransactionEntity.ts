@@ -10,7 +10,7 @@ import {
     ILedgerBlockTransactionChaincode,
 } from '@hlf-explorer/common/ledger';
 
-@Entity()
+@Entity('ledger_block_transaction')
 @Index(['hash', 'blockId', 'requestId', 'requestUserId', 'ledgerId'])
 @Index(['uid', 'ledgerId'], { unique: true })
 export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {

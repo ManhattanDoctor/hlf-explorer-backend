@@ -6,7 +6,7 @@ import { LedgerBlockEntity } from './LeggerBlockEntity';
 import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { ITransportEvent } from '@ts-core/common/transport';
 
-@Entity()
+@Entity('ledger_block_event')
 @Index(['uid', 'blockId', 'ledgerId', 'name'])
 @Index(['uid', 'ledgerId'], { unique: true })
 export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {

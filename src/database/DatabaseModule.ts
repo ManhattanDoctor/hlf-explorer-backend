@@ -1,9 +1,8 @@
 import { DynamicModule, Provider, Global } from '@nestjs/common';
 import { IDatabaseSettings } from '@ts-core/backend/settings';
-import { Logger } from '@ts-core/common/logger';
-import { Connection, createConnection } from 'typeorm';
-import { ConnectionOptions } from 'typeorm/connection/ConnectionOptions';
 import { DatabaseService } from './DatabaseService';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Global()
 export class DatabaseModule {
@@ -13,22 +12,8 @@ export class DatabaseModule {
     //
     // --------------------------------------------------------------------------
 
-    public static forRoot(settings: IDatabaseSettings): DynamicModule {
-        const providers: Array<Provider> = [
-            {
-                provide: Connection,
-                inject: [Logger],
-                useFactory: async (logger: Logger) => {
-                    let config = DatabaseModule.getOrmConfig(settings);
-                    logger.debug(
-                        `Connecting to ${config.type} ${settings.databaseHost}:${settings.databasePort}/${settings.databaseName}`,
-                        'DataBaseModule'
-                    );
-                    return await createConnection(config);
-                },
-            },
-            DatabaseService,
-        ];
+    public static forRoot(): DynamicModule {
+        const providers: Array<Provider> = [DatabaseService];
         return {
             module: DatabaseModule,
             providers,
@@ -42,7 +27,7 @@ export class DatabaseModule {
     //
     // --------------------------------------------------------------------------
 
-    public static getOrmConfig(settings: IDatabaseSettings): ConnectionOptions {
+    public static getOrmConfig(settings: IDatabaseSettings): TypeOrmModuleOptions {
         return {
             type: 'postgres',
             host: settings.databaseHost,
@@ -50,14 +35,16 @@ export class DatabaseModule {
             username: settings.databaseUserName,
             password: settings.databaseUserPassword,
             database: settings.databaseName,
-            synchronize: true,
             logging: false,
             entities: [__dirname + '/**/*Entity.{ts,js}'],
-            migrations: [__dirname + '/migration/*.{ts,js}'],
+            migrations: [__dirname + '/../database/migration/**/*.{ts,js}'],
             migrationsRun: false,
             cli: {
-                migrationsDir: 'src/migration',
+                migrationsDir: 'src/database/migration',
             },
+            keepConnectionAlive: true,
+            autoLoadEntities: true,
+            namingStrategy: new SnakeNamingStrategy(),
         };
     }
 }

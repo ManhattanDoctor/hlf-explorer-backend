@@ -1,14 +1,14 @@
 version: '3.2'
 
 services:
-  app:
+  explorer:
     image: registry.n-t.io/karma/hlf-explorer/hlf-explorer:${TAG:-master}
     env_file:
       - ./dev.env
     volumes:
       - ./:/app:cached
     depends_on:
-      - db
+      - explorer_db
     ports:
       - 33000:3000
     working_dir: /app
@@ -17,7 +17,7 @@ services:
       - default
       - ledger
 
-  db:
+  explorer_db:
     image: postgres:11.4-alpine
     env_file:
       - ./dev.env

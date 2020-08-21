@@ -4,7 +4,7 @@ import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, OneToMany, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 
-@Entity()
+@Entity('ledger')
 @Index(['name'], { unique: true })
 export class LedgerEntity implements Ledger {
     // --------------------------------------------------------------------------

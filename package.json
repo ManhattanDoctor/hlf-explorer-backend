@@ -30,6 +30,7 @@
         "@nestjs/platform-socket.io": "6.10.11",
         "@nestjs/platform-ws": "6.10.11",
         "@nestjs/swagger": "4.0.9",
+        "@nestjs/typeorm": "^7.1.0",
         "@nestjs/websockets": "6.10.11",
         "@ts-core/backend": "^1.0.17",
         "@ts-core/backend-nestjs": "^6.0.12",

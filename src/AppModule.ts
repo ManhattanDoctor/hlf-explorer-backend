@@ -6,6 +6,7 @@ import MemoryStore from 'cache-manager-memory-store';
 import { AppSettings } from './AppSettings';
 import { DatabaseModule } from './database/DatabaseModule';
 import { LedgerModule } from './ledger/LedgerModule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
@@ -21,7 +22,8 @@ export class AppModule implements OnApplicationBootstrap {
                 HttpModule,
                 CacheModule.forRoot({ store: MemoryStore }),
                 LoggerModule.forRoot(settings),
-                DatabaseModule.forRoot(settings),
+                TypeOrmModule.forRoot(DatabaseModule.getOrmConfig(settings)),
+                DatabaseModule.forRoot(),
                 TransportModule.forRoot({ type: TransportType.LOCAL }),
                 LedgerModule.forRoot(settings),
             ],

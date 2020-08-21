@@ -8,7 +8,7 @@ import { Block } from 'fabric-client';
 import { LedgerBlockEventEntity } from './LedgerBlockEventEntity';
 import { LedgerBlockTransactionEntity } from './LedgerBlockTransactionEntity';
 
-@Entity()
+@Entity('ledger_block')
 @Index(['uid', 'hash', 'number', 'ledgerId'])
 @Index(['uid', 'ledgerId'], { unique: true })
 export class LedgerBlockEntity implements LedgerBlock {
