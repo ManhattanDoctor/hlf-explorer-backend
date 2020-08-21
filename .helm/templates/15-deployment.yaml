@@ -60,3 +60,11 @@ spec:
               fieldRef:
                 fieldPath: metadata.name
 {{- include (printf "%s-envs" $.Chart.Name) $ | indent 10 }}
+        volumeMounts:
+          - name: ledger-connection
+            mountPath: /app/src/connection.json
+            subPath: connection.json
+      volumes:
+        - name: ledger-connection
+          configMap:
+            name: ledger-connection
