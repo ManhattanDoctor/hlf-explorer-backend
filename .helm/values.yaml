@@ -2,7 +2,7 @@ registry:
   secret_name: registrysecret
 
 hlf-explorer:
-  image: karma
+  image: hlf-explorer
 
 postgres_gcp:
   host:

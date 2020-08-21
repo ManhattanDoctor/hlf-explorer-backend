@@ -14,6 +14,9 @@
 - name: POSTGRES_DB_PORT
   value: "{{ pluck .Values.global.env .Values.postgres_gcp.port | first | default .Values.postgres_gcp.port._default }}"
 
+- name: LOGGER_LEVEL
+  value: 3
+
 - name: FABRIC_IDENTITY
   value: "user1"
 - name: FABRIC_IDENTITY_MSP_ID
