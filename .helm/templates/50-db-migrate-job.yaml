@@ -23,7 +23,7 @@ spec:
       containers:
       - name: db-update
 {{ tuple "hlf-explorer" . | include "werf_container_image" | indent 8 }}
-        command: ["/bin/sh","-c", "-l", "npm run schema:drop && npm run migration:run"]
+        command: ["/bin/sh","-c", "-l", "npm run migration:run"]
         workingDir: /app/dist
         env:
 {{ tuple "hlf-explorer" . | include "werf_container_env" | indent 8 }}
