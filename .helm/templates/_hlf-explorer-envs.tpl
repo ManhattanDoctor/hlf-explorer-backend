@@ -17,6 +17,9 @@
 - name: LOGGER_LEVEL
   value: 3
 
+- name: WEB_PORT
+  value: 3000
+
 - name: FABRIC_IDENTITY
   value: "user1"
 - name: FABRIC_IDENTITY_MSP_ID
