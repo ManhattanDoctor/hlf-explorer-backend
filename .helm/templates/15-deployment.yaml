@@ -60,6 +60,7 @@ spec:
               fieldRef:
                 fieldPath: metadata.name
 {{- include (printf "%s-envs" $.Chart.Name) $ | indent 10 }}
+{{ tuple "hlf-explorer" . | include "werf_container_env" | indent 10 }}
         volumeMounts:
           - name: ledger-connection
             mountPath: /app/src/connection.json
