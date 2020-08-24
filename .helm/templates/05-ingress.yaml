@@ -21,5 +21,5 @@ spec:
   tls:
     - hosts:
         - '{{ .Values.global.ci_url }}'
-      secretName: 'star-ssl'
+      secretName: '{{ .Chart.Name }}'
 
