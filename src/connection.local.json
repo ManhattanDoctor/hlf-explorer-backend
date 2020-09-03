@@ -15,10 +15,7 @@
         "mychannel": {
             "orderers": ["orderer.example.com"],
             "peers": {
-                "peer0.org1.example.com": {},
-                "peer1.org1.example.com": {},
-                "peer0.org2.example.com": {},
-                "peer1.org2.example.com": {}
+                "peer0.org1.example.com": {}
             }
         }
     },
@@ -30,7 +27,7 @@
     },
     "peers": {
         "peer0.org1.example.com": {
-            "url": "grpcs://34.91.123.132:7051",
+            "url": "grpcs://peer0.org1.example.com:7051",
             "grpcOptions": {
                 "ssl-target-name-override": "peer0.org1.example.com",
                 "hostnameOverride": "peer0.org1.example.com"
@@ -40,15 +37,15 @@
             }
         }
     },
-    "orderers": {
-        "orderer.example.com": {
-            "url": "grpcs://34.91.123.132:7050",
-            "grpcOptions": {
-                "ssl-target-name-override": "orderer.example.com",
-                "hostnameOverride": "orderer.example.com"
-            },
+    "certificateAuthorities": {
+        "ca.example.com": {
+            "url": "http://ca.example.com:7054",
+            "caName": "ca.example.com",
             "tlsCACerts": {
-                "path": "./fabcerts/orderers/ca.crt"
+                "path": "./fabcerts/ca/ca.pem"
+            },
+            "httpOptions": {
+                "verify": false
             }
         }
     }

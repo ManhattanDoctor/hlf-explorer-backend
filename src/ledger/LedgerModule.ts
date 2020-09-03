@@ -36,21 +36,21 @@ export class LedgerModule {
                 useFactory: async (ledger: LedgerService) => {
                     await ledger.initialize();
                     return LEDGER_SOCKET_NAMESPACE;
-                }
+                },
             },
             {
                 provide: LedgerApiFactory,
                 inject: [Logger],
                 useFactory: (logger: ILogger) => {
                     return new LedgerApiFactory(logger, settings);
-                }
+                },
             },
             {
                 provide: LedgerTransportFactory,
                 inject: [Logger],
                 useFactory: (logger: ILogger) => {
                     return new LedgerTransportFactory(logger, settings);
-                }
+                },
             },
 
             LedgerGuard,
@@ -59,7 +59,7 @@ export class LedgerModule {
             LedgerService,
             LedgerApiMonitor,
             LedgerBlockParseHandler,
-            LedgerStateCheckHandler
+            LedgerStateCheckHandler,
         ];
         return {
             module: LedgerModule,
@@ -74,10 +74,10 @@ export class LedgerModule {
                 LedgerBlockEventGetController,
                 LedgerBlockEventListController,
                 LedgerBlockTransactionGetController,
-                LedgerBlockTransactionListController
+                LedgerBlockTransactionListController,
             ],
             providers,
-            exports: providers
+            exports: providers,
         };
     }
 }
