@@ -15,7 +15,7 @@ import { LedgerBlockEventGetController } from './controller/event/LedgerBlockEve
 import { LedgerBlockEventListController } from './controller/event/LedgerBlockEventListController';
 import { LedgerInfoGetController } from './controller/info/LedgerInfoGetController';
 import { LedgerInfoListController } from './controller/info/LedgerInfoListController';
-import { ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
+import { ITransportFabricSettings } from '@hlf-core/transport/client';
 import { LedgerTransportFactory } from './service/LedgerTransportFactory';
 import { LedgerRequestController } from './controller/LedgerRequestController';
 import { LedgerGuard } from './service/guard/LedgerGuard';

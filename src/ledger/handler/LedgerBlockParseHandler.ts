@@ -6,7 +6,7 @@ import { LedgerBlockEntity } from '../../database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../database/DatabaseService';
 import { LedgerBlockParsedEvent } from '../transport/event/LedgerBlockParsedEvent';
 import { LedgerApiFactory } from '../service/LedgerApiFactory';
-import { TransportFabricBlockParser, ITransportFabricTransaction, ITransportFabricEvent } from '@ts-core/blockchain-fabric/transport/block';
+import { TransportFabricBlockParser, ITransportFabricTransaction, ITransportFabricEvent } from '@hlf-core/transport/client/block';
 import { LedgerBlockTransactionEntity } from '../../database/entity/LedgerBlockTransactionEntity';
 import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
@@ -90,7 +90,7 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
                 item.requestUserId = request.options['userId'];
             }
         }
-        
+
         let response = item.response;
         if (!_.isNil(response) && !_.isNil(response.response)) {
             item.responseErrorCode = ExtendedError.instanceOf(response.response) ? response.response.code : null;

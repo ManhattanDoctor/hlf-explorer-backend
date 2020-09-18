@@ -1,7 +1,7 @@
 import { IDatabaseSettings, IWebSettings, EnvSettingsStorage } from '@ts-core/backend/settings';
 import { ILogger, LoggerLevel } from '@ts-core/common/logger';
 import { AbstractSettingsStorage } from '@ts-core/common/settings';
-import { ITransportFabricSettings } from '@ts-core/blockchain-fabric/transport';
+import { ITransportFabricSettings } from '@hlf-core/transport/client';
 
 export class AppSettings extends EnvSettingsStorage implements ITransportFabricSettings, IWebSettings, IDatabaseSettings {
     // --------------------------------------------------------------------------

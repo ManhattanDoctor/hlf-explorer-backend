@@ -1,5 +1,5 @@
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
-import { FabricApi, IFabricApiSettings } from '@ts-core/blockchain-fabric/api';
+import { FabricApiClient, IFabricApiSettings } from '@hlf-core/api';
 import * as _ from 'lodash';
 
 export class LedgerApiFactory extends LoggerWrapper {
@@ -9,7 +9,7 @@ export class LedgerApiFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    protected items: Map<number, FabricApi>;
+    protected items: Map<number, FabricApiClient>;
 
     // --------------------------------------------------------------------------
     //
@@ -39,10 +39,10 @@ export class LedgerApiFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    public async get(ledgerId: number): Promise<FabricApi> {
+    public async get(ledgerId: number): Promise<FabricApiClient> {
         let item = this.items.get(ledgerId);
         if (_.isNil(item)) {
-            item = new FabricApi(this.logger, this.getSettings(ledgerId));
+            item = new FabricApiClient(this.logger, this.getSettings(ledgerId));
             this.items.set(ledgerId, item);
         }
 
