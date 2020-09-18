@@ -1,5 +1,5 @@
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
-import { TransportFabricClient, ITransportFabricSettings } from '@hlf-core/transport/client';
+import { TransportFabricSender, ITransportFabricSettings } from '@hlf-core/transport/client';
 import * as _ from 'lodash';
 
 export class LedgerTransportFactory extends LoggerWrapper {
@@ -9,7 +9,7 @@ export class LedgerTransportFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    protected items: Map<number, TransportFabricClient>;
+    protected items: Map<number, TransportFabricSender>;
 
     // --------------------------------------------------------------------------
     //
@@ -39,10 +39,10 @@ export class LedgerTransportFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    public async get(ledgerId: number): Promise<TransportFabricClient> {
+    public async get(ledgerId: number): Promise<TransportFabricSender> {
         let item = this.items.get(ledgerId);
         if (_.isNil(item)) {
-            item = new TransportFabricClient(this.logger, this.getSettings(ledgerId));
+            item = new TransportFabricSender(this.logger, this.getSettings(ledgerId));
             this.items.set(ledgerId, item);
         }
 
