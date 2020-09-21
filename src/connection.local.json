@@ -1,5 +1,5 @@
 {
-    "name": "karma-ledger-network",
+    "name": "first-network-org1",
     "version": "1.0.0",
     "client": {
         "organization": "Org1",
@@ -15,75 +15,31 @@
         "mychannel": {
             "orderers": ["orderer.example.com"],
             "peers": {
-                "peer0.org1.example.com": {},
-                "peer1.org1.example.com": {},
-                "peer0.org2.example.com": {},
-                "peer1.org2.example.com": {}
+                "peer0.org1.example.com": {}
             }
         }
     },
     "organizations": {
         "Org1": {
             "mspid": "Org1MSP",
-            "peers": ["peer0.org1.example.com", "peer1.org1.example.com"]
-        },
-        "Org2": {
-            "mspid": "Org2MSP",
-            "peers": ["peer0.org2.example.com", "peer1.org2.example.com"]
+            "peers": ["peer0.org1.example.com"]
         }
     },
     "peers": {
         "peer0.org1.example.com": {
-            "url": "grpcs://peer0.org1.example.com:7051",
+            "url": "grpc://peer0.org1.example.com:7051",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICVzCCAf2gAwIBAgIQNOFIlTLOCRRJs0KyyqJXATAKBggqhkjOPQQDAjB2MQsw\nCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZy\nYW5jaXNjbzEZMBcGA1UEChMQb3JnMS5leGFtcGxlLmNvbTEfMB0GA1UEAxMWdGxz\nY2Eub3JnMS5leGFtcGxlLmNvbTAeFw0yMDAzMTYxNDEzMDBaFw0zMDAzMTQxNDEz\nMDBaMHYxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQH\nEw1TYW4gRnJhbmNpc2NvMRkwFwYDVQQKExBvcmcxLmV4YW1wbGUuY29tMR8wHQYD\nVQQDExZ0bHNjYS5vcmcxLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0D\nAQcDQgAE7+itt2frdcio6ysoarmwcE6mVSafzQiU/ZfF9RNLwicw7fy/wIWWD09D\nxayZMW8fJRiGbOlb1pYvS+Ybv+PugaNtMGswDgYDVR0PAQH/BAQDAgGmMB0GA1Ud\nJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MCkGA1Ud\nDgQiBCBar13vrOLZtxcq7HvVe4X70r1zyvwcvHOhh2LqpIMyuDAKBggqhkjOPQQD\nAgNIADBFAiEAoCO00/9vgQv9B5wByFTq62rPEUsVidWWl1Zf/SnEdV0CIETjPvJl\noPe/alMbhycm8M0SESASDPGISaEKfwIiPir6\n-----END CERTIFICATE-----\n"
+            },
             "grpcOptions": {
                 "ssl-target-name-override": "peer0.org1.example.com",
                 "hostnameOverride": "peer0.org1.example.com"
-            },
-            "tlsCACerts": {
-                "path": "./fabcerts/peers/org1/peer0/ca.crt"
-            }
-        },
-        "peer1.org1.example.com": {
-            "url": "grpcs://peer1.org1.example.com:8051",
-            "grpcOptions": {
-                "ssl-target-name-override": "peer1.org1.example.com",
-                "hostnameOverride": "peer1.org1.example.com"
-            },
-            "tlsCACerts": {
-                "path": "./fabcerts/peers/org1/peer1/ca.crt"
-            }
-        },
-        "peer0.org2.example.com": {
-            "url": "grpcs://peer0.org2.example.com:9051",
-            "grpcOptions": {
-                "ssl-target-name-override": "peer0.org2.example.com",
-                "hostnameOverride": "peer0.org2.example.com"
-            },
-            "tlsCACerts": {
-                "path": "./fabcerts/peers/org2/peer0/ca.crt"
-            }
-        },
-        "peer1.org2.example.com": {
-            "url": "grpcs://peer1.org2.example.com:10051",
-            "grpcOptions": {
-                "ssl-target-name-override": "peer1.org2.example.com",
-                "hostnameOverride": "peer1.org2.example.com"
-            },
-            "tlsCACerts": {
-                "path": "./fabcerts/peers/org2/peer1/ca.crt"
             }
         }
     },
     "orderers": {
         "orderer.example.com": {
-            "url": "grpcs://orderer.example.com:7050",
-            "grpcOptions": {
-                "ssl-target-name-override": "orderer.example.com",
-                "hostnameOverride": "orderer.example.com"
-            },
-            "tlsCACerts": {
-                "path": "./fabcerts/orderers/ca.crt"
-            }
+            "url": "grpc://orderer.example.com:7050"
         }
     }
 }

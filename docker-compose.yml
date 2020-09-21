@@ -35,4 +35,4 @@ volumes:
 networks:
   ledger:
     external:
-      name: karma-ledger_byfn
+      name: karma-ledger_basic
