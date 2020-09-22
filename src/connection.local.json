@@ -28,9 +28,6 @@
     "peers": {
         "peer0.org1.example.com": {
             "url": "grpc://peer0.org1.example.com:7051",
-            "tlsCACerts": {
-                "pem": "-----BEGIN CERTIFICATE-----\nMIICVzCCAf2gAwIBAgIQNOFIlTLOCRRJs0KyyqJXATAKBggqhkjOPQQDAjB2MQsw\nCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZy\nYW5jaXNjbzEZMBcGA1UEChMQb3JnMS5leGFtcGxlLmNvbTEfMB0GA1UEAxMWdGxz\nY2Eub3JnMS5leGFtcGxlLmNvbTAeFw0yMDAzMTYxNDEzMDBaFw0zMDAzMTQxNDEz\nMDBaMHYxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQH\nEw1TYW4gRnJhbmNpc2NvMRkwFwYDVQQKExBvcmcxLmV4YW1wbGUuY29tMR8wHQYD\nVQQDExZ0bHNjYS5vcmcxLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0D\nAQcDQgAE7+itt2frdcio6ysoarmwcE6mVSafzQiU/ZfF9RNLwicw7fy/wIWWD09D\nxayZMW8fJRiGbOlb1pYvS+Ybv+PugaNtMGswDgYDVR0PAQH/BAQDAgGmMB0GA1Ud\nJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MCkGA1Ud\nDgQiBCBar13vrOLZtxcq7HvVe4X70r1zyvwcvHOhh2LqpIMyuDAKBggqhkjOPQQD\nAgNIADBFAiEAoCO00/9vgQv9B5wByFTq62rPEUsVidWWl1Zf/SnEdV0CIETjPvJl\noPe/alMbhycm8M0SESASDPGISaEKfwIiPir6\n-----END CERTIFICATE-----\n"
-            },
             "grpcOptions": {
                 "ssl-target-name-override": "peer0.org1.example.com",
                 "hostnameOverride": "peer0.org1.example.com"
