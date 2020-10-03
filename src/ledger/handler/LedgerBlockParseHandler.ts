@@ -5,7 +5,6 @@ import { ILedgerBlockParseDto, LedgerBlockParseCommand } from '../transport/comm
 import { LedgerBlockEntity } from '../../database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../database/DatabaseService';
 import { LedgerBlockParsedEvent } from '../transport/event/LedgerBlockParsedEvent';
-import { LedgerApiFactory } from '../service/LedgerApiFactory';
 import { TransportFabricBlockParser, ITransportFabricTransaction, ITransportFabricEvent } from '@hlf-core/transport/client/block';
 import { LedgerBlockTransactionEntity } from '../../database/entity/LedgerBlockTransactionEntity';
 import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
@@ -13,6 +12,7 @@ import * as _ from 'lodash';
 import * as uuid from 'uuid';
 import { ExtendedError } from '@ts-core/common/error';
 import { LedgerBlockEventEntity } from '../../database/entity/LedgerBlockEventEntity';
+import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
 
 @Injectable()
 export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBlockParseDto, LedgerBlockParseCommand> {
@@ -22,7 +22,7 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private factory: LedgerApiFactory) {
+    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private factory: LedgerTransportFactory) {
         super(logger, transport, LedgerBlockParseCommand.NAME);
     }
 
@@ -37,7 +37,7 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
         let api = await this.factory.get(params.ledgerId);
         let parser = new TransportFabricBlockParser();
 
-        let rawBlock = await api.getBlock(params.number);
+        let rawBlock = await api.api.getBlock(params.number);
         let parsedBlock = parser.parse(rawBlock);
 
         let item = new LedgerBlockEntity();

@@ -2,7 +2,6 @@ import { DynamicModule, Provider } from '@nestjs/common';
 import { LedgerBlockGetController } from './controller/block/LedgerBlockGetController';
 import { LedgerBlockListController } from './controller/block/LedgerBlockListController';
 import { LedgerService } from './service/LedgerService';
-import { LedgerApiFactory } from './service/LedgerApiFactory';
 import { LedgerApiMonitor } from './service/LedgerApiMonitor';
 import { LedgerBlockParseHandler } from './handler/LedgerBlockParseHandler';
 import { LedgerStateCheckHandler } from './handler/LedgerStateCheckHandler';
@@ -15,11 +14,12 @@ import { LedgerBlockEventGetController } from './controller/event/LedgerBlockEve
 import { LedgerBlockEventListController } from './controller/event/LedgerBlockEventListController';
 import { LedgerInfoGetController } from './controller/info/LedgerInfoGetController';
 import { LedgerInfoListController } from './controller/info/LedgerInfoListController';
-import { ITransportFabricSettings } from '@hlf-core/transport/client';
 import { LedgerTransportFactory } from './service/LedgerTransportFactory';
 import { LedgerRequestController } from './controller/LedgerRequestController';
 import { LedgerGuard } from './service/guard/LedgerGuard';
 import { LedgerGuardPaginable } from './service/guard/LedgerGuardPaginable';
+import { LedgerSettings } from './service/LedgerSettings';
+import { LedgerResetController } from './controller/LedgerResetController';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -28,7 +28,7 @@ export class LedgerModule {
     //
     // --------------------------------------------------------------------------
 
-    public static forRoot(settings: ITransportFabricSettings): DynamicModule {
+    public static forRoot(ledgersSettingsPath: string): DynamicModule {
         const providers: Array<Provider> = [
             {
                 provide: LEDGER_SOCKET_NAMESPACE,
@@ -39,19 +39,16 @@ export class LedgerModule {
                 },
             },
             {
-                provide: LedgerApiFactory,
+                provide: LedgerSettings,
                 inject: [Logger],
-                useFactory: (logger: ILogger) => {
-                    return new LedgerApiFactory(logger, settings);
+                useFactory: async (logger: ILogger) => {
+                    let item = new LedgerSettings(logger);
+                    await item.load(ledgersSettingsPath);
+                    return item;
                 },
             },
-            {
-                provide: LedgerTransportFactory,
-                inject: [Logger],
-                useFactory: (logger: ILogger) => {
-                    return new LedgerTransportFactory(logger, settings);
-                },
-            },
+
+            LedgerTransportFactory,
 
             LedgerGuard,
             LedgerGuardPaginable,
@@ -64,6 +61,7 @@ export class LedgerModule {
         return {
             module: LedgerModule,
             controllers: [
+                LedgerResetController,
                 LedgerSearchController,
                 LedgerRequestController,
 

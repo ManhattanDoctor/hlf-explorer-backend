@@ -1,9 +1,9 @@
 import { IDatabaseSettings, IWebSettings, EnvSettingsStorage } from '@ts-core/backend/settings';
 import { ILogger, LoggerLevel } from '@ts-core/common/logger';
 import { AbstractSettingsStorage } from '@ts-core/common/settings';
-import { ITransportFabricSettings } from '@hlf-core/transport/client';
+import { ITransportFabricConnectionSettings } from '@hlf-core/transport/client';
 
-export class AppSettings extends EnvSettingsStorage implements ITransportFabricSettings, IWebSettings, IDatabaseSettings {
+export class AppSettings extends EnvSettingsStorage implements ITransportFabricConnectionSettings, IWebSettings, IDatabaseSettings {
     // --------------------------------------------------------------------------
     //
     //  Public Properties
@@ -11,6 +11,16 @@ export class AppSettings extends EnvSettingsStorage implements ITransportFabricS
     // --------------------------------------------------------------------------
 
     public logger?: ILogger;
+
+    // --------------------------------------------------------------------------
+    //
+    //  Custom Properties
+    //
+    // --------------------------------------------------------------------------
+
+    public get ledgersSettingsPath(): string {
+        return this.getValue('LEDGERS_SETTINGS_PATH');
+    }
 
     // --------------------------------------------------------------------------
     //
@@ -92,6 +102,10 @@ export class AppSettings extends EnvSettingsStorage implements ITransportFabricS
 
     public get fabricIsDiscoveryEnabled(): boolean {
         return AbstractSettingsStorage.parseBoolean(this.getValue('FABRIC_IS_DISCOVERY_ENABLED'));
+    }
+
+    public get fabricIsDiscoveryAsLocalhost(): boolean {
+        return AbstractSettingsStorage.parseBoolean(this.getValue('FABRIC_IS_DISCOVERY_AS_LOCALHOST'));
     }
 
     // --------------------------------------------------------------------------

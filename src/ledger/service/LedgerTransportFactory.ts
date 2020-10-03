@@ -1,7 +1,10 @@
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
-import { TransportFabricSender, ITransportFabricSettings } from '@hlf-core/transport/client';
+import { TransportFabricSender } from '@hlf-core/transport/client';
 import * as _ from 'lodash';
+import { LedgerSettings } from './LedgerSettings';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class LedgerTransportFactory extends LoggerWrapper {
     // --------------------------------------------------------------------------
     //
@@ -17,20 +20,9 @@ export class LedgerTransportFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, protected settings: ITransportFabricSettings) {
+    constructor(logger: Logger, private settings: LedgerSettings) {
         super(logger);
         this.items = new Map();
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    //  Private Methods
-    //
-    // --------------------------------------------------------------------------
-
-    // Override this method if you want to support different ledgers at the same time
-    protected getSettings(ledgerId: number): ITransportFabricSettings {
-        return this.settings;
     }
 
     // --------------------------------------------------------------------------
@@ -41,11 +33,12 @@ export class LedgerTransportFactory extends LoggerWrapper {
 
     public async get(ledgerId: number): Promise<TransportFabricSender> {
         let item = this.items.get(ledgerId);
-        if (_.isNil(item)) {
-            item = new TransportFabricSender(this.logger, this.getSettings(ledgerId));
-            this.items.set(ledgerId, item);
+        if (!_.isNil(item)) {
+            return item;
         }
 
+        item = new TransportFabricSender(this.logger, this.settings.getById(ledgerId));
+        this.items.set(ledgerId, item);
         await item.connect();
         return item;
     }

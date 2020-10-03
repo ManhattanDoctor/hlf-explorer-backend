@@ -10,6 +10,7 @@ import { DatabaseService } from '../../database/DatabaseService';
 import { Transport } from '@ts-core/common/transport';
 import { LedgerBlockParsedEvent, ILedgerBlockParsedDto } from '../transport/event/LedgerBlockParsedEvent';
 import { TransformUtil } from '@ts-core/common/util';
+import { LedgerResetedEvent, ILedgerResetedDto } from '../transport/event/LedgerResetedEvent';
 
 @WebSocketGateway({ namespace: LEDGER_SOCKET_NAMESPACE })
 export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Namespace>, OnGatewayConnection, OnGatewayDisconnect {
@@ -32,6 +33,7 @@ export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Nam
         super(logger);
 
         this.items = new MapCollection('id');
+        this.transport.getDispatcher<LedgerResetedEvent>(LedgerResetedEvent.NAME).subscribe(item => this.reseted(item.data));
         this.transport.getDispatcher<LedgerBlockParsedEvent>(LedgerBlockParsedEvent.NAME).subscribe(item => this.blockParsed(item.data));
     }
 
@@ -60,7 +62,7 @@ export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Nam
                 pageIndex: 0,
                 pageSize: LedgerBlocksLast.MAX_LENGTH,
                 sort: { number: false, ledgerId: true },
-                conditions: { ledgerId }
+                conditions: { ledgerId },
             },
             async value => {
                 let item = TransformUtil.fromClass(value);
@@ -83,6 +85,16 @@ export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Nam
                 this.items.add(await this.createLedgerInfo(ledger));
             }
         }
+    }
+
+    public reseted(event: ILedgerResetedDto): void {
+        let item = this.getInfo(event.ledgerId);
+        if (_.isNil(item)) {
+            return;
+        }
+
+        let data: Partial<LedgerInfo> = { id: item.id, name: item.name };
+        this.namespace.emit(LedgerSocketEvent.LEDGER_RESETED, data);
     }
 
     public blockParsed(event: ILedgerBlockParsedDto): void {

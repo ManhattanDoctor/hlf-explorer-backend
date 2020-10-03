@@ -26,7 +26,7 @@ export class AppModule implements OnApplicationBootstrap {
                 TypeOrmModule.forRoot(DatabaseModule.getOrmConfig(settings)),
                 DatabaseModule.forRoot(),
                 TransportModule.forRoot({ type: TransportType.LOCAL }),
-                LedgerModule.forRoot(settings),
+                LedgerModule.forRoot(settings.ledgersSettingsPath),
                 HealthcheckModule,
             ],
             providers: [],

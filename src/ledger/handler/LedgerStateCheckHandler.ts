@@ -9,7 +9,7 @@ import * as _ from 'lodash';
 import { Ledger } from '@hlf-explorer/common/ledger';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
 import { LedgerBlockParseCommand } from '../transport/command/LedgerBlockParseCommand';
-import { LedgerApiFactory } from '../service/LedgerApiFactory';
+import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
 
 @Injectable()
 export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStateCheckDto, LedgerStateCheckCommand> {
@@ -19,7 +19,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private factory: LedgerApiFactory) {
+    constructor(logger: Logger, transport: Transport, private database: DatabaseService, private factory: LedgerTransportFactory) {
         super(logger, transport, LedgerStateCheckCommand.NAME);
     }
 
@@ -72,7 +72,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
 
     protected async getLastBlockHeight(ledger: Ledger): Promise<number> {
         let api = await this.factory.get(ledger.id);
-        return (await api.getBlockNumber()) - 1;
+        return (await api.api.getBlockNumber()) - 1;
     }
 
     protected parseBlock(ledgerId: number, number: number): void {

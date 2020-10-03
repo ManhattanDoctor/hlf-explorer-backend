@@ -23,6 +23,4 @@ yarn-error.log
 /packages/**/LICENSE
 
 # backend
-/packages/backend/.env
-/packages/backend/connection.json
 .werf_secret_key

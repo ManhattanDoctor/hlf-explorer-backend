@@ -86,7 +86,7 @@ export class LedgerStateChecker extends LoggerWrapper {
     }
 
     public destroy(): void {
-        super.destroy();
         this.stop();
+        super.destroy();
     }
 }
