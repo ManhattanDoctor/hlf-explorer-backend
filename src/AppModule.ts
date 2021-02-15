@@ -16,7 +16,6 @@ export class AppModule implements OnApplicationBootstrap {
     //  Public Static Methods
     //
     // --------------------------------------------------------------------------
-
     public static forRoot(settings: AppSettings): DynamicModule {
         return {
             module: AppModule,
