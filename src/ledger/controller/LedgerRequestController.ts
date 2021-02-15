@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsObject, IsString, IsBoolean } from 'class-validator';
+import { IsObject, IsOptional, IsString, IsBoolean } from 'class-validator';
 import * as _ from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
@@ -22,8 +22,9 @@ export class RequestDto<U = any> implements ILedgerRequestRequest<U> {
     request: ITransportCommand<U>;
 
     @ApiProperty()
+    @IsOptional()
     @IsObject()
-    options: ITransportCommandOptions;
+    options?: ITransportCommandOptions;
 
     @ApiProperty()
     @IsBoolean()

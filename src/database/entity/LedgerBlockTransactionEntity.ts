@@ -1,6 +1,6 @@
 import { ObjectUtil } from '@ts-core/common/util';
 import { Exclude, Type } from 'class-transformer';
-import { IsEnum, IsUUID, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsUUID, IsDate, IsNumber, IsBoolean, IsOptional, IsString } from 'class-validator';
 import { Column, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 import {
@@ -82,6 +82,16 @@ export class LedgerBlockTransactionEntity implements LedgerBlockTransaction {
     @IsOptional()
     @IsNumber()
     public responseErrorCode: number;
+
+    @Column({ name: 'is_batch', nullable: true })
+    @IsOptional()
+    @IsBoolean()
+    public isBatch?: boolean;
+
+    @Column({ name: 'block_mined', nullable: true })
+    @IsOptional()
+    @IsNumber()
+    public blockMined?: number;
 
     @Exclude()
     @ManyToOne(

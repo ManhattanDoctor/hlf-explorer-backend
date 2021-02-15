@@ -46,7 +46,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
         await this.database.ledgerUpdate({ id: ledger.id, blockHeight: blockLast });
 
         for (let number of await this.getUnparsedBlocks(ledger, blockHeight + 1, blockLast)) {
-            this.parseBlock(params.ledgerId, number);
+            this.parseBlock(params.ledgerId, ledger.isBatch, number);
         }
     }
 
@@ -75,7 +75,7 @@ export class LedgerStateCheckHandler extends TransportCommandHandler<ILedgerStat
         return (await api.api.getBlockNumber()) - 1;
     }
 
-    protected parseBlock(ledgerId: number, number: number): void {
-        this.transport.send(new LedgerBlockParseCommand(TraceUtil.addIfNeed({ ledgerId, number })));
+    protected parseBlock(ledgerId: number, isBatch: boolean, number: number): void {
+        this.transport.send(new LedgerBlockParseCommand(TraceUtil.addIfNeed({ ledgerId, isBatch, number })));
     }
 }

@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
 import { ILedgerResetRequest } from '@hlf-explorer/common/api';
 import { LedgerGuard, ILedgerHolder } from '../service/guard/LedgerGuard';
-import { LedgerSettings } from '../service/LedgerSettings';
+import { LedgerSettingsFactory } from '../service/LedgerSettingsFactory';
 import { LedgerService } from '../service/LedgerService';
 import { ExtendedError } from '@ts-core/common/error';
 
@@ -40,7 +40,7 @@ export class LedgerResetController extends DefaultController<ResetDto, any> {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private settings: LedgerSettings, private service: LedgerService) {
+    constructor(logger: Logger, private settings: LedgerSettingsFactory, private service: LedgerService) {
         super(logger);
     }
 
@@ -49,7 +49,7 @@ export class LedgerResetController extends DefaultController<ResetDto, any> {
     //  Public Methods
     //
     // --------------------------------------------------------------------------
-
+    
     @Post()
     @UseGuards(LedgerGuard)
     public async executeExtended(@Body() params: ResetDto, @Req() holder: ILedgerHolder): Promise<any> {

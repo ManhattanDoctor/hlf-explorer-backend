@@ -9,10 +9,13 @@ import { LedgerStateChecker } from './LedgerStateChecker';
 import { Transport } from '@ts-core/common/transport';
 import { LedgerApiMonitor } from './LedgerApiMonitor';
 import * as _ from 'lodash';
-import { LedgerSettings, ILedgerConnectionSettings } from './LedgerSettings';
+import { LedgerSettingsFactory, ILedgerConnectionSettings } from './LedgerSettingsFactory';
 import { LedgerTransportFactory } from './LedgerTransportFactory';
 import { ExtendedError } from '@ts-core/common/error';
 import { LedgerResetedEvent } from '../transport/event/LedgerResetedEvent';
+import { LedgerBlockParseCommand } from '../transport/command/LedgerBlockParseCommand';
+import { LedgerBatchChecker } from './LedgerBatchChecker';
+import { PromiseHandler } from '@ts-core/common/promise';
 
 @Injectable()
 export class LedgerService extends LoggerWrapper {
@@ -22,7 +25,8 @@ export class LedgerService extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    private monitors: Map<string, LedgerStateChecker>;
+    private checkers: Map<string, LedgerStateChecker>;
+    private batchers: Map<string, LedgerBatchChecker>;
 
     // --------------------------------------------------------------------------
     //
@@ -35,10 +39,11 @@ export class LedgerService extends LoggerWrapper {
         private transport: Transport,
         private database: DatabaseService,
         private monitor: LedgerApiMonitor,
-        private settings: LedgerSettings
+        private settings: LedgerSettingsFactory
     ) {
         super(logger);
-        this.monitors = new Map();
+        this.checkers = new Map();
+        this.batchers = new Map();
     }
 
     // --------------------------------------------------------------------------
@@ -49,14 +54,56 @@ export class LedgerService extends LoggerWrapper {
 
     private async createLedger(settings: ILedgerConnectionSettings): Promise<Ledger> {
         let item = new LedgerEntity();
-        item.name = settings.name;
+        item.name = settings.uid;
         item.blockHeight = 0;
         item.blockHeightParsed = 0;
         item.blockFrequency = 3 * DateUtil.MILISECONDS_SECOND;
 
+        if (!_.isNil(settings.batch)) {
+            item.isBatch = _.isBoolean(settings.batch) ? settings.batch : true;
+        }
+
         await this.database.ledgerSave(item);
-        this.log(`Ledger "${settings.name}" saved`);
+        this.log(`Ledger "${settings.uid}" saved`);
         return item.toObject();
+    }
+
+    private async initializeBatchers(ledgers: Array<Ledger>): Promise<void> {
+        this.batchers.forEach(item => item.destroy());
+        this.batchers.clear();
+
+        for (let ledger of ledgers) {
+            if (!ledger.isBatch) {
+                continue;
+            }
+
+            let settings = this.settings.get(ledger.name);
+            if (_.isNil(settings.batch) || _.isBoolean(settings.batch)) {
+                continue;
+            }
+
+            let item = this.batchers.get(ledger.name);
+            if (!this.batchers.has(ledger.name)) {
+                item = new LedgerBatchChecker(this.logger, this.transport, ledger, settings.batch);
+                this.batchers.set(ledger.name, item);
+            }
+            item.start();
+        }
+    }
+
+    private async initializeCheckers(ledgers: Array<Ledger>): Promise<void> {
+        this.checkers.forEach(item => item.destroy());
+        this.checkers.clear();
+
+        for (let ledger of ledgers) {
+            let item = this.checkers.get(ledger.name);
+            if (!this.checkers.has(ledger.name)) {
+                item = new LedgerStateChecker(this.logger, this.transport, ledger);
+                // monitor = new LedgerBlockMonitor(this.logger, this.transport, this.database, this.factory);
+                this.checkers.set(ledger.name, item);
+            }
+            item.start();
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -66,28 +113,24 @@ export class LedgerService extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     public async initialize(): Promise<void> {
-        let names = this.settings.collection.map(item => item.name);
+        let names = this.settings.items.collection.map(item => item.uid);
         this.log(`Initializing, found ${names.join(',')} ledgers...`);
 
-        this.monitors.forEach(item => item.destroy());
-        this.monitors.clear();
+        this.checkers.forEach(item => item.destroy());
+        this.checkers.clear();
 
         let ledgers = [];
-        for (let settings of this.settings.collection) {
-            let ledger = (await this.ledgerGet(settings.name)) || (await this.createLedger(settings));
+        for (let settings of this.settings.items.collection) {
+            let ledger = (await this.ledgerGet(settings.uid)) || (await this.createLedger(settings));
             settings.id = ledger.id;
             ledgers.push(ledger);
-
-            let monitor = this.monitors.get(ledger.name);
-            if (!this.monitors.has(ledger.name)) {
-                monitor = new LedgerStateChecker(this.logger, this.transport, ledger);
-                // monitor = new LedgerBlockMonitor(this.logger, this.transport, this.database, this.factory);
-                this.monitors.set(ledger.name, monitor);
-            }
-            monitor.start();
         }
-
+        await this.initializeCheckers(ledgers);
+        await this.initializeBatchers(ledgers);
         await this.monitor.initialize(ledgers);
+
+        // await this.ledgerReset('Karma');
+        // this.transport.send(new LedgerBlockParseCommand({ ledgerId: 1, isBatch: true, number: 33 }));
     }
 
     public async ledgerGet(name: string): Promise<Ledger> {
@@ -96,19 +139,22 @@ export class LedgerService extends LoggerWrapper {
     }
 
     public async ledgerReset(name: string): Promise<Ledger> {
-        let monitor = this.monitors.get(name);
-        if (_.isNil(monitor)) {
-            throw new ExtendedError(`Can't find monitor for "${name}" ledger`);
-        }
-        monitor.stop();
-
         let item = await this.database.ledger.findOne({ name });
-        await this.database.ledgerBlock.delete({ ledgerId: item.id });
-        await this.database.ledgerBlockEvent.delete({ ledgerId: item.id });
+        if (_.isNil(item)) {
+            throw new ExtendedError(`Unable to find "${name}" ledger`);
+        }
+
+        let checkers = _.compact([this.checkers.get(name), this.batchers.get(name)]);
+        checkers.forEach(item => item.stop());
+
         await this.database.ledgerBlockTransaction.delete({ ledgerId: item.id });
+        await this.database.ledgerBlockEvent.delete({ ledgerId: item.id });
+        await this.database.ledgerBlock.delete({ ledgerId: item.id });
+
         await this.database.ledger.update(item.id, { blockHeight: 0, blockHeightParsed: 0 });
         this.transport.dispatch(new LedgerResetedEvent({ ledgerId: item.id }));
-        monitor.start();
+
+        checkers.forEach(item => item.start());
 
         this.log(`Ledger ${name} reseted`);
         return item;

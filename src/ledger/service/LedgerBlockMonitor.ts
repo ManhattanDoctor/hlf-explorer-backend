@@ -54,9 +54,8 @@ export class LedgerBlockMonitor extends LoggerWrapper {
                     this.error(`Received error in "${ledger.name}" blocks: ${error.message}`);
                     return;
                 }
-                console.log(block);
             },
-            { startBlock: blockLast, }
+            { startBlock: blockLast }
         );
     }
 
@@ -75,7 +74,7 @@ export class LedgerBlockMonitor extends LoggerWrapper {
 
     private async check(ledger: Ledger): Promise<void> {
         this.log(`Checking ${ledger.name} status...`);
-        let blockLast = await this.getLastBlockHeight(ledger) - 1;
+        let blockLast = (await this.getLastBlockHeight(ledger)) - 1;
         let blockCurrent = ledger.blockHeight;
 
         if (_.isNaN(blockLast) || blockLast === 0) {
@@ -91,7 +90,7 @@ export class LedgerBlockMonitor extends LoggerWrapper {
         await this.database.ledgerUpdate({ id: ledger.id, blockHeight: blockLast });
 
         for (let number of await this.getUnparsedBlocks(ledger, blockCurrent + 1, blockLast)) {
-            this.transport.send(new LedgerBlockParseCommand(TraceUtil.addIfNeed({ ledgerId: ledger.id, number })));
+            this.transport.send(new LedgerBlockParseCommand(TraceUtil.addIfNeed({ ledgerId: ledger.id, isBatch: ledger.isBatch, number })));
         }
     }
 
@@ -113,7 +112,7 @@ export class LedgerBlockMonitor extends LoggerWrapper {
 
     private async getLastBlockHeight(ledger: Ledger): Promise<number> {
         let api = await this.factory.get(ledger.id);
-        return (await api.api.getBlockNumber());
+        return await api.api.getBlockNumber();
     }
 
     // --------------------------------------------------------------------------
@@ -123,7 +122,11 @@ export class LedgerBlockMonitor extends LoggerWrapper {
     // --------------------------------------------------------------------------
 
     public destroy(): void {
+        if (this.isDestroyed) {
+            return;
+        }
         super.destroy();
+
         this.stop();
     }
 }

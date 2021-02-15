@@ -11,8 +11,10 @@ import { ObjectUtil, TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
 import * as uuid from 'uuid';
 import { ExtendedError } from '@ts-core/common/error';
+import { TRANSPORT_FABRIC_COMMAND_BATCH_NAME } from '@hlf-core/transport';
 import { LedgerBlockEventEntity } from '../../database/entity/LedgerBlockEventEntity';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
+import { TransportFabricBlockParserBatch } from '@hlf-core/transport/client/batch/block';
 
 @Injectable()
 export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBlockParseDto, LedgerBlockParseCommand> {
@@ -35,29 +37,33 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
     protected async execute(params: ILedgerBlockParseDto): Promise<void> {
         this.log(`Parsing block #${params.number} for ${params.ledgerId} ledger...`);
         let api = await this.factory.get(params.ledgerId);
-        let parser = new TransportFabricBlockParser();
+        let parser = params.isBatch ? new TransportFabricBlockParserBatch(api.api) : new TransportFabricBlockParser();
 
         let rawBlock = await api.api.getBlock(params.number);
-        let parsedBlock = parser.parse(rawBlock);
+        let parsedBlock = await parser.parse(rawBlock);
 
         let item = new LedgerBlockEntity();
         item.ledgerId = params.ledgerId;
 
         item.uid = uuid();
         item.rawData = rawBlock;
+        item.isBatch = parsedBlock['isBatch'];
         ObjectUtil.copyProperties(parsedBlock, item, ['hash', 'number', 'createdDate']);
 
         item.events = parsedBlock.events.map(event => this.parseEvent(params.ledgerId, item, event));
         item.transactions = parsedBlock.transactions.map(transaction => this.parseTransaction(params.ledgerId, item, transaction));
 
-        await this.database.ledgerBlockSave(item);
-        await this.database.ledgerUpdate({ id: params.ledgerId, blockHeightParsed: item.number });
-
-        // Have to use TransformUtil here
-        this.transport.dispatch(new LedgerBlockParsedEvent({ ledgerId: params.ledgerId, block: TransformUtil.fromClass(item) }));
+        await this.saveBlock(params.ledgerId, item);
     }
 
-    private parseEvent = (ledgerId: number, block: LedgerBlockEntity, event: ITransportFabricEvent) => {
+    private async saveBlock(ledgerId: number, item: LedgerBlockEntity): Promise<void> {
+        await this.database.ledgerBlockSave(item);
+        await this.database.ledgerUpdate({ id: ledgerId, blockHeightParsed: item.number });
+        // Have to use TransformUtil here
+        this.transport.dispatch(new LedgerBlockParsedEvent({ ledgerId: ledgerId, block: TransformUtil.fromClass(item) }));
+    }
+
+    private parseEvent = (ledgerId: number, block: LedgerBlockEntity, event: ITransportFabricEvent): LedgerBlockEventEntity => {
         let item = new LedgerBlockEventEntity();
         item.ledgerId = ledgerId;
 
@@ -73,7 +79,11 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
         return item;
     };
 
-    private parseTransaction = (ledgerId: number, block: LedgerBlockEntity, transaction: ITransportFabricTransaction) => {
+    private parseTransaction = (
+        ledgerId: number,
+        block: LedgerBlockEntity,
+        transaction: ITransportFabricTransaction
+    ): LedgerBlockTransactionEntity => {
         let item = new LedgerBlockTransactionEntity();
         item.ledgerId = ledgerId;
 
@@ -86,6 +96,11 @@ export class LedgerBlockParseHandler extends TransportCommandHandler<ILedgerBloc
         if (!_.isNil(request)) {
             item.requestId = request.id;
             item.requestName = request.name;
+
+            if (item.requestName === TRANSPORT_FABRIC_COMMAND_BATCH_NAME) {
+                item.isBatch = true;
+            }
+
             if (!_.isNil(request.options) && ObjectUtil.hasOwnProperty(request.options, 'userId')) {
                 item.requestUserId = request.options['userId'];
             }

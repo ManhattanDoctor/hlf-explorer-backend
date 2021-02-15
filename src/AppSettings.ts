@@ -1,9 +1,7 @@
 import { IDatabaseSettings, IWebSettings, EnvSettingsStorage } from '@ts-core/backend/settings';
 import { ILogger, LoggerLevel } from '@ts-core/common/logger';
-import { AbstractSettingsStorage } from '@ts-core/common/settings';
-import { ITransportFabricConnectionSettings } from '@hlf-core/transport/client';
 
-export class AppSettings extends EnvSettingsStorage implements ITransportFabricConnectionSettings, IWebSettings, IDatabaseSettings {
+export class AppSettings extends EnvSettingsStorage implements IWebSettings, IDatabaseSettings {
     // --------------------------------------------------------------------------
     //
     //  Public Properties
@@ -68,53 +66,15 @@ export class AppSettings extends EnvSettingsStorage implements ITransportFabricC
 
     // --------------------------------------------------------------------------
     //
-    //  Public Fabric Properties
-    //
-    // --------------------------------------------------------------------------
-
-    public get fabricIdentity(): string {
-        return this.getValue('FABRIC_IDENTITY');
-    }
-
-    public get fabricIdentityMspId(): string {
-        return this.getValue('FABRIC_IDENTITY_MSP_ID');
-    }
-
-    public get fabricIdentityPrivateKey(): string {
-        return AbstractSettingsStorage.parsePEM(this.getValue('FABRIC_IDENTITY_PRIVATE_KEY'));
-    }
-
-    public get fabricIdentityCertificate(): string {
-        return AbstractSettingsStorage.parsePEM(this.getValue('FABRIC_IDENTITY_CERTIFICATE'));
-    }
-
-    public get fabricChaincodeName(): string {
-        return this.getValue('FABRIC_CHAINCODE_NAME');
-    }
-
-    public get fabricNetworkName(): string {
-        return this.getValue('FABRIC_NETWORK_NAME');
-    }
-
-    public get fabricConnectionSettingsPath(): string {
-        return this.getValue('FABRIC_CONNECTION_SETTINGS_PATH');
-    }
-
-    public get fabricIsDiscoveryEnabled(): boolean {
-        return AbstractSettingsStorage.parseBoolean(this.getValue('FABRIC_IS_DISCOVERY_ENABLED'));
-    }
-
-    public get fabricIsDiscoveryAsLocalhost(): boolean {
-        return AbstractSettingsStorage.parseBoolean(this.getValue('FABRIC_IS_DISCOVERY_AS_LOCALHOST'));
-    }
-
-    // --------------------------------------------------------------------------
-    //
     //  Logger Properties
     //
     // --------------------------------------------------------------------------
 
     public get loggerLevel(): LoggerLevel {
         return this.getValue('LOGGER_LEVEL', LoggerLevel.ALL);
+    }
+
+    protected getPrefferedValue<T>(name: string): T {
+        return process.env[name] as any;
     }
 }

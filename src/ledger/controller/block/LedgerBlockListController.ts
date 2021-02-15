@@ -96,8 +96,8 @@ export class LedgerBlockListController extends DefaultController<LedgerBlockList
     ): Promise<LedgerBlockListDtoResponse> {
         let query = this.database.ledgerBlock
             .createQueryBuilder('item')
-            .innerJoinAndSelect('item.events', 'events')
-            .innerJoinAndSelect('item.transactions', 'transactions');
+            .leftJoinAndSelect('item.events', 'events')
+            .leftJoinAndSelect('item.transactions', 'transactions');
         return TypeormUtil.toPagination(query, params, this.transform);
     }
 

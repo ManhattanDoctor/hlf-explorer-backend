@@ -1,7 +1,7 @@
 {
     "ledgers": [
         {
-            "name": "Karma",
+            "uid": "Karma",
             "passwordToReset": "04e77bf8f95cb3e1a36a59d1e93857c411930db646b46c218a0352e432023cf2",
 
             "fabricIdentity": "user",

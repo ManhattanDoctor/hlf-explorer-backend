@@ -56,8 +56,8 @@ export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Nam
         let blocks = await TypeormUtil.toPagination(
             this.database.ledgerBlock
                 .createQueryBuilder('item')
-                .innerJoinAndSelect('item.transactions', 'transactions')
-                .innerJoinAndSelect('item.events', 'events'),
+                .leftJoinAndSelect('item.events', 'events')
+                .leftJoinAndSelect('item.transactions', 'transactions'),
             {
                 pageIndex: 0,
                 pageSize: LedgerBlocksLast.MAX_LENGTH,
@@ -89,17 +89,18 @@ export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Nam
 
     public reseted(event: ILedgerResetedDto): void {
         let item = this.getInfo(event.ledgerId);
-        if (_.isNil(item)) {
+        if (_.isNil(item) || _.isNil(this.namespace)) {
             return;
         }
 
         let data: Partial<LedgerInfo> = { id: item.id, name: item.name };
+
         this.namespace.emit(LedgerSocketEvent.LEDGER_RESETED, data);
     }
 
     public blockParsed(event: ILedgerBlockParsedDto): void {
         let item = this.getInfo(event.ledgerId);
-        if (_.isNil(item)) {
+        if (_.isNil(item) || _.isNil(this.namespace)) {
             return;
         }
 

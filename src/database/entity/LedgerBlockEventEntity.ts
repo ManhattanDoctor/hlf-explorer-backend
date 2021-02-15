@@ -1,6 +1,6 @@
 import { ObjectUtil } from '@ts-core/common/util';
 import { Exclude, Type } from 'class-transformer';
-import { IsDate, IsUUID, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsUUID, IsNumber, IsOptional, IsBoolean, IsString } from 'class-validator';
 import { Column, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 import { LedgerBlockEvent } from '@hlf-explorer/common/ledger';
@@ -34,6 +34,10 @@ export class LedgerBlockEventEntity<T = any> implements LedgerBlockEvent<T> {
     @Column({ name: 'transaction_hash' })
     @IsString()
     public transactionHash: string;
+
+    @Column({ name: 'transaction_validation_code', nullable: true })
+    @IsNumber()
+    public transactionValidationCode: number;
 
     @Column()
     @IsString()

@@ -1,6 +1,6 @@
 import { Ledger } from '@hlf-explorer/common/ledger';
 import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
-import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsBoolean, IsString } from 'class-validator';
 import { Column, OneToMany, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerBlockEntity } from './LeggerBlockEntity';
 
@@ -33,6 +33,11 @@ export class LedgerEntity implements Ledger {
     @Column({ name: 'block_height_parsed' })
     @IsInt()
     public blockHeightParsed: number;
+
+    @Column({ name: 'is_batch', nullable: true })
+    @IsOptional()
+    @IsBoolean()
+    public isBatch?: boolean;
 
     @OneToMany(
         () => LedgerBlockEntity,

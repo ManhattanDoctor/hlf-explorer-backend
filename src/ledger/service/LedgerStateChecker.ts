@@ -1,4 +1,4 @@
-import { LoggerWrapper, Logger } from '@ts-core/common/logger';
+import { LoggerWrapper, Logger, ILogger } from '@ts-core/common/logger';
 import { Transport } from '@ts-core/common/transport';
 import { Ledger } from '@hlf-explorer/common/ledger';
 import { LedgerStateCheckCommand } from '../transport/command/LedgerStateCheckCommand';
@@ -11,9 +11,9 @@ export class LedgerStateChecker extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    private timer: any;
-    private timeout: number;
-    private isRunning: boolean;
+    protected timer: any;
+    protected timeout: number;
+    protected isRunning: boolean;
 
     // --------------------------------------------------------------------------
     //
@@ -21,7 +21,7 @@ export class LedgerStateChecker extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private transport: Transport, private ledger: Ledger) {
+    constructor(logger: ILogger, protected transport: Transport, protected ledger: Ledger) {
         super(logger);
     }
 
@@ -41,7 +41,7 @@ export class LedgerStateChecker extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    private timerStart(timeout: number): void {
+    protected timerStart(timeout: number): void {
         if (this.isRunning) {
             return;
         }
@@ -54,7 +54,7 @@ export class LedgerStateChecker extends LoggerWrapper {
         this.log(`Timer started ${timeout}ms`);
     }
 
-    private timerStop(): void {
+    protected timerStop(): void {
         if (!this.isRunning) {
             return;
         }
@@ -86,7 +86,11 @@ export class LedgerStateChecker extends LoggerWrapper {
     }
 
     public destroy(): void {
-        this.stop();
+        if (this.isDestroyed) {
+            return;
+        }
         super.destroy();
+
+        this.stop();
     }
 }

@@ -1,8 +1,9 @@
 import { Logger, LoggerWrapper } from '@ts-core/common/logger';
 import { TransportFabricSender } from '@hlf-core/transport/client';
 import * as _ from 'lodash';
-import { LedgerSettings } from './LedgerSettings';
+import { ILedgerConnectionSettings, LedgerSettingsFactory } from './LedgerSettingsFactory';
 import { Injectable } from '@nestjs/common';
+import { TransportFabricSenderBatch } from '@hlf-core/transport/client/batch';
 
 @Injectable()
 export class LedgerTransportFactory extends LoggerWrapper {
@@ -12,7 +13,7 @@ export class LedgerTransportFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    protected items: Map<number, TransportFabricSender>;
+    protected items: Map<number, LedgerFabricSender>;
 
     // --------------------------------------------------------------------------
     //
@@ -20,7 +21,7 @@ export class LedgerTransportFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    constructor(logger: Logger, private settings: LedgerSettings) {
+    constructor(logger: Logger, private settings: LedgerSettingsFactory) {
         super(logger);
         this.items = new Map();
     }
@@ -31,15 +32,19 @@ export class LedgerTransportFactory extends LoggerWrapper {
     //
     // --------------------------------------------------------------------------
 
-    public async get(ledgerId: number): Promise<TransportFabricSender> {
+    public async get(ledgerId: number): Promise<LedgerFabricSender> {
         let item = this.items.get(ledgerId);
         if (!_.isNil(item)) {
+            if (!item.isConnected) {
+                await item.connect();
+            }
             return item;
         }
-
-        item = new TransportFabricSender(this.logger, this.settings.getById(ledgerId));
+        item = new LedgerFabricSender(this.logger, this.settings.getById(ledgerId));
         this.items.set(ledgerId, item);
         await item.connect();
         return item;
     }
 }
+
+export class LedgerFabricSender extends TransportFabricSenderBatch<ILedgerConnectionSettings> {}

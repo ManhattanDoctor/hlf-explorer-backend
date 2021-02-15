@@ -1,4 +1,4 @@
-import { DynamicModule, HttpModule, Inject, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { DynamicModule, HttpModule, OnApplicationBootstrap } from '@nestjs/common';
 import { LoggerModule } from '@ts-core/backend-nestjs/logger';
 import { CacheModule } from '@ts-core/backend-nestjs/cache';
 import { TransportModule, TransportType } from '@ts-core/backend-nestjs/transport';
@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/DatabaseModule';
 import { LedgerModule } from './ledger/LedgerModule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthcheckModule } from './healthcheck/HealthcheckModule';
+import * as fabricUtils from 'fabric-client/lib/utils.js';
 
 export class AppModule implements OnApplicationBootstrap {
     // --------------------------------------------------------------------------
@@ -40,7 +41,10 @@ export class AppModule implements OnApplicationBootstrap {
     //
     // --------------------------------------------------------------------------
 
-    public constructor() {}
+    public constructor() {
+        // Disable logger
+        fabricUtils.getLogger('Peer.js').transports.console.silent = true;
+    }
 
     // --------------------------------------------------------------------------
     //

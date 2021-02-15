@@ -1,7 +1,7 @@
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
 import { ObjectUtil } from '@ts-core/common/util';
 import { Exclude, Type } from 'class-transformer';
-import { IsDefined, IsUUID, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsDefined, IsUUID, IsBoolean, IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Column, JoinTable, OneToMany, Index, JoinColumn, ManyToOne, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { LedgerEntity } from './LedgerEntity';
 import { Block } from 'fabric-client';
@@ -44,6 +44,11 @@ export class LedgerBlockEntity implements LedgerBlock {
     @Column({ name: 'raw_data', type: 'json' })
     @IsDefined()
     public rawData: Block;
+
+    @Column({ name: 'is_batch', nullable: true })
+    @IsOptional()
+    @IsBoolean()
+    public isBatch?: boolean;
 
     @Type(() => LedgerBlockTransactionEntity)
     @OneToMany(

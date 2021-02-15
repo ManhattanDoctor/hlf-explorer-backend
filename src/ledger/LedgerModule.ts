@@ -18,8 +18,9 @@ import { LedgerTransportFactory } from './service/LedgerTransportFactory';
 import { LedgerRequestController } from './controller/LedgerRequestController';
 import { LedgerGuard } from './service/guard/LedgerGuard';
 import { LedgerGuardPaginable } from './service/guard/LedgerGuardPaginable';
-import { LedgerSettings } from './service/LedgerSettings';
+import { LedgerSettingsFactory } from './service/LedgerSettingsFactory';
 import { LedgerResetController } from './controller/LedgerResetController';
+import { LedgerBatchHandler } from './handler/LedgerBatchHandler';
 
 export class LedgerModule {
     // --------------------------------------------------------------------------
@@ -39,10 +40,10 @@ export class LedgerModule {
                 },
             },
             {
-                provide: LedgerSettings,
+                provide: LedgerSettingsFactory,
                 inject: [Logger],
                 useFactory: async (logger: ILogger) => {
-                    let item = new LedgerSettings(logger);
+                    let item = new LedgerSettingsFactory(logger);
                     await item.load(ledgersSettingsPath);
                     return item;
                 },
@@ -55,6 +56,7 @@ export class LedgerModule {
 
             LedgerService,
             LedgerApiMonitor,
+            LedgerBatchHandler,
             LedgerBlockParseHandler,
             LedgerStateCheckHandler,
         ];
