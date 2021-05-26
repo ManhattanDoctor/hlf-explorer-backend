@@ -1,13 +1,9 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiForbiddenResponse,
-    ApiHeader,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
     ApiPropertyOptional,
-    ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
@@ -15,6 +11,7 @@ import { FilterableConditions, FilterableSort, IPagination, Paginable } from '@t
 import { Logger } from '@ts-core/common/logger';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
+import { BLOCKS_URL } from '@hlf-explorer/common/api';
 import { LedgerBlockEntity } from '../../../database/entity/LeggerBlockEntity';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { TransformUtil } from '@ts-core/common/util';
@@ -69,7 +66,7 @@ export class LedgerBlockListDtoResponse implements IPagination<LedgerBlock> {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/blocks')
+@Controller(BLOCKS_URL)
 export class LedgerBlockListController extends DefaultController<LedgerBlockListDto, LedgerBlockListDtoResponse> {
     // --------------------------------------------------------------------------
     //

@@ -1,9 +1,9 @@
-import { Controller, Get, Param, HttpStatus, Body, Inject, CACHE_MANAGER, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus, Query, UseGuards, Req } from '@nestjs/common';
+import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsString, IsDefined } from 'class-validator';
-import { LedgerBlock, LedgerBlockEvent, Ledger } from '@hlf-explorer/common/ledger';
+import { LedgerBlock, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockEventGetResponse, ILedgerBlockEventGetRequest } from '@hlf-explorer/common/api/event';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
@@ -12,6 +12,7 @@ import { TransformUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
 import { IsUUID } from 'class-validator';
 import { LedgerGuard, ILedgerHolder } from '../../service/guard/LedgerGuard';
+import { EVENT_URL } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -41,7 +42,7 @@ export class LedgerBlockEventGetResponse implements ILedgerBlockEventGetResponse
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/event')
+@Controller(EVENT_URL)
 export class LedgerBlockEventGetController extends DefaultController<LedgerBlockEventGetRequest, LedgerBlockEventGetResponse> {
     // --------------------------------------------------------------------------
     //

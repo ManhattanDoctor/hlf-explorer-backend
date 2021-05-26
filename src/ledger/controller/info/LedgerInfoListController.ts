@@ -1,13 +1,9 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiForbiddenResponse,
-    ApiHeader,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
     ApiPropertyOptional,
-    ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
@@ -21,6 +17,7 @@ import * as _ from 'lodash';
 import { LedgerEntity } from '../../../database/entity/LedgerEntity';
 import { LedgerApiMonitor } from '../../service/LedgerApiMonitor';
 import { LedgerGuardPaginable } from '../../service/guard/LedgerGuardPaginable';
+import { INFOS_URL } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -70,7 +67,7 @@ export class LedgerInfoListDtoResponse implements IPagination<LedgerInfo> {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/infos')
+@Controller(INFOS_URL)
 export class LedgerInfoListController extends DefaultController<LedgerInfoListDto, LedgerInfoListDtoResponse> {
     // --------------------------------------------------------------------------
     //

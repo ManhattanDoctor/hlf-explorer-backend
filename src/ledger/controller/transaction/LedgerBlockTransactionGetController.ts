@@ -1,17 +1,16 @@
 import { Controller, Get, HttpStatus, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
+import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsDefined, IsNumberString, IsString } from 'class-validator';
+import { IsDefined, IsString } from 'class-validator';
 import { LedgerBlock, LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
 import { ILedgerBlockTransactionGetResponse, ILedgerBlockTransactionGetRequest } from '@hlf-explorer/common/api/transaction';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import { TransformUtil } from '@ts-core/common/util';
-import { Cache } from '@ts-core/backend-nestjs/cache';
-import { Validator } from 'class-validator';
 import { LedgerGuard, ILedgerHolder } from '../../service/guard/LedgerGuard';
+import { TRANSACTION_URL } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -41,7 +40,7 @@ export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactio
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/transaction')
+@Controller(TRANSACTION_URL)
 export class LedgerBlockTransactionGetController extends DefaultController<
     LedgerBlockTransactionGetRequest,
     LedgerBlockTransactionGetResponse

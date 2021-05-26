@@ -5,7 +5,7 @@ import { IsObject, IsOptional, IsString, IsBoolean } from 'class-validator';
 import * as _ from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
-import { ILedgerRequestRequest } from '@hlf-explorer/common/api';
+import { ILedgerRequestRequest, REQUEST_URL } from '@hlf-explorer/common/api';
 import { ITransportCommand, ITransportCommandOptions, TransportCommandAsync, TransportCommand } from '@ts-core/common/transport';
 import { TransformUtil } from '@ts-core/common/util';
 import { LedgerGuard, ILedgerHolder } from '../service/guard/LedgerGuard';
@@ -41,7 +41,7 @@ export class RequestDto<U = any> implements ILedgerRequestRequest<U> {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/request')
+@Controller(REQUEST_URL)
 export class LedgerRequestController extends DefaultController<RequestDto, any> {
     // --------------------------------------------------------------------------
     //

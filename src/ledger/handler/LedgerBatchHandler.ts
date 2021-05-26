@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from '@ts-core/common/logger';
-import { TraceUtil } from '@ts-core/common/trace';
 import { Transport, TransportCommand, TransportCommandAsync, TransportCommandHandler } from '@ts-core/common/transport';
-import { LedgerStateCheckCommand, ILedgerStateCheckDto } from '../transport/command/LedgerStateCheckCommand';
 import { DatabaseService } from '../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
 import * as _ from 'lodash';
@@ -10,7 +8,7 @@ import { ILedgerBatchDto, LedgerBatchCommand } from '../transport/command/Ledger
 import { LedgerTransportFactory } from '../service/LedgerTransportFactory';
 import { LedgerSettingsFactory } from '../service/LedgerSettingsFactory';
 import { ITransportCryptoManager, TransportCryptoManagerEd25519 } from '@ts-core/common/transport/crypto';
-import { ITransportFabricCommandOptions, TRANSPORT_FABRIC_COMMAND_BATCH_NAME } from '@hlf-core/transport';
+import { TRANSPORT_FABRIC_COMMAND_BATCH_NAME } from '@hlf-core/transport';
 
 @Injectable()
 export class LedgerBatchHandler extends TransportCommandHandler<ILedgerBatchDto, LedgerBatchCommand> {
@@ -46,9 +44,7 @@ export class LedgerBatchHandler extends TransportCommandHandler<ILedgerBatchDto,
         let manager = new TransportCryptoManagerEd25519();
 
         let command = new TransportCommandAsync(TRANSPORT_FABRIC_COMMAND_BATCH_NAME);
-        api.send(command, {
-            signature: await TransportCommand.sign(command, manager, settings.batch.key),
-        });
+        api.send(command, { signature: await TransportCommand.sign(command, manager, settings.batch.key) });
     }
 
     // --------------------------------------------------------------------------

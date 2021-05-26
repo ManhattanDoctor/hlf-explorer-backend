@@ -1,13 +1,9 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiForbiddenResponse,
-    ApiHeader,
     ApiOkResponse,
     ApiOperation,
     ApiProperty,
     ApiPropertyOptional,
-    ApiTooManyRequestsResponse,
-    ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { TypeormUtil } from '@ts-core/backend/database/typeorm';
@@ -16,11 +12,12 @@ import { Logger } from '@ts-core/common/logger';
 import { IsOptional, IsString } from 'class-validator';
 import { LedgerBlockTransaction } from '@hlf-explorer/common/ledger';
 import { DatabaseService } from '../../../database/DatabaseService';
-import { TransformUtil, ObjectUtil } from '@ts-core/common/util';
+import { TransformUtil } from '@ts-core/common/util';
 import { LedgerService } from '../../service/LedgerService';
 import * as _ from 'lodash';
 import { LedgerBlockTransactionEntity } from '../../../database/entity/LedgerBlockTransactionEntity';
 import { LedgerGuardPaginable } from '../../service/guard/LedgerGuardPaginable';
+import { TRANSACTIONS_URL } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -70,7 +67,7 @@ export class LedgerBlockTransactionListDtoResponse implements IPagination<Ledger
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/transactions')
+@Controller(TRANSACTIONS_URL)
 export class LedgerBlockTransactionListController extends DefaultController<
     LedgerBlockTransactionListDto,
     LedgerBlockTransactionListDtoResponse

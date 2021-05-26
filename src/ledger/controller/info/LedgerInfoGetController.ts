@@ -1,17 +1,16 @@
 import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
+import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
-import { IsDefined, IsNumberString } from 'class-validator';
+import { IsDefined } from 'class-validator';
 import { LedgerInfo } from '@hlf-explorer/common/ledger';
 import { ILedgerInfoGetResponse, ILedgerInfoGetRequest } from '@hlf-explorer/common/api/info';
 import * as _ from 'lodash';
-import { DatabaseService } from '../../../database/DatabaseService';
 import { ExtendedError } from '@ts-core/common/error';
-import { DateUtil, TransformUtil } from '@ts-core/common/util';
+import { TransformUtil } from '@ts-core/common/util';
 import { Cache } from '@ts-core/backend-nestjs/cache';
-import { LedgerService } from '../../service/LedgerService';
 import { LedgerApiMonitor } from '../../service/LedgerApiMonitor';
+import { INFO_URL } from '@hlf-explorer/common/api';
 
 // --------------------------------------------------------------------------
 //
@@ -37,7 +36,7 @@ export class LedgerInfoGetResponse implements ILedgerInfoGetResponse {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/info')
+@Controller(INFO_URL)
 export class LedgerInfoGetController extends DefaultController<LedgerInfoGetRequest, LedgerInfoGetResponse> {
     // --------------------------------------------------------------------------
     //

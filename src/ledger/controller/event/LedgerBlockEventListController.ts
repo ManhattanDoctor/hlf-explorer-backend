@@ -11,7 +11,7 @@ import { TransformUtil } from '@ts-core/common/util';
 import * as _ from 'lodash';
 import { LedgerBlockEventEntity } from '../../../database/entity/LedgerBlockEventEntity';
 import { LedgerGuardPaginable } from '../../service/guard/LedgerGuardPaginable';
-
+import { EVENTS_URL } from '@hlf-explorer/common/api';
 // --------------------------------------------------------------------------
 //
 //  Controller
@@ -60,7 +60,7 @@ export class LedgerBlockEventListDtoResponse implements IPagination<LedgerBlockE
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/events')
+@Controller(EVENTS_URL)
 export class LedgerBlockEventListController extends DefaultController<LedgerBlockEventListDto, LedgerBlockEventListDtoResponse> {
     // --------------------------------------------------------------------------
     //

@@ -1,9 +1,10 @@
 import { Controller, Get, HttpStatus, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiProperty, ApiOkResponse, ApiOperation, ApiNotFoundResponse } from '@nestjs/swagger';
+import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsDefined, IsString } from 'class-validator';
 import { LedgerBlock } from '@hlf-explorer/common/ledger';
+import { BLOCK_URL } from '@hlf-explorer/common/api';
 import { ILedgerBlockGetResponse, ILedgerBlockGetRequest } from '@hlf-explorer/common/api/block';
 import * as _ from 'lodash';
 import { DatabaseService } from '../../../database/DatabaseService';
@@ -39,7 +40,7 @@ export class LedgerBlockGetResponse implements ILedgerBlockGetResponse {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/block')
+@Controller(BLOCK_URL)
 export class LedgerBlockGetController extends DefaultController<LedgerBlockGetRequest, LedgerBlockGetResponse> {
     // --------------------------------------------------------------------------
     //

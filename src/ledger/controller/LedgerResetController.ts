@@ -1,10 +1,10 @@
-import { Controller, Post, UseGuards, Req, Query, Body } from '@nestjs/common';
+import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
 import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsString } from 'class-validator';
 import * as _ from 'lodash';
 import { ApiProperty } from '@nestjs/swagger';
-import { ILedgerResetRequest } from '@hlf-explorer/common/api';
+import { ILedgerResetRequest, RESET_URL } from '@hlf-explorer/common/api';
 import { LedgerGuard, ILedgerHolder } from '../service/guard/LedgerGuard';
 import { LedgerSettingsFactory } from '../service/LedgerSettingsFactory';
 import { LedgerService } from '../service/LedgerService';
@@ -32,7 +32,7 @@ export class ResetDto implements ILedgerResetRequest {
 //
 // --------------------------------------------------------------------------
 
-@Controller('api/ledger/reset')
+@Controller(RESET_URL)
 export class LedgerResetController extends DefaultController<ResetDto, any> {
     // --------------------------------------------------------------------------
     //
@@ -49,7 +49,7 @@ export class LedgerResetController extends DefaultController<ResetDto, any> {
     //  Public Methods
     //
     // --------------------------------------------------------------------------
-    
+
     @Post()
     @UseGuards(LedgerGuard)
     public async executeExtended(@Body() params: ResetDto, @Req() holder: ILedgerHolder): Promise<any> {
