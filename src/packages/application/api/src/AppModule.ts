@@ -30,8 +30,6 @@ export class AppModule extends AbstractService implements OnApplicationBootstrap
                 LoggerModule.forRoot(settings),
 
                 CacheModule.forRoot({ store: MemoryStore }),
-                LoggerModule.forRoot(settings),
-
                 TypeOrmModule.forRoot(this.getOrmConfig(settings)[0]),
 
                 TransportModule.forRoot({ type: TransportType.LOCAL }),
@@ -126,6 +124,7 @@ export class AppModule extends AbstractService implements OnApplicationBootstrap
         super('HLF Explorer API', settings, logger);
         // fabricUtils.getLogger('Peer.js').transports.console.silent = true;
     }
+
     // --------------------------------------------------------------------------
     //
     //  Public Methods

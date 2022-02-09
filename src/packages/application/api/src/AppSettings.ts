@@ -69,8 +69,4 @@ export class AppSettings extends EnvSettingsStorage implements IWebSettings, IDa
     public get loggerLevel(): LoggerLevel {
         return this.getValue('LOGGER_LEVEL', LoggerLevel.ALL);
     }
-
-    protected getPrefferedValue<T>(name: string): T {
-        return process.env[name] as any;
-    }
 }

@@ -1,26 +1,26 @@
 version: '3.2'
 
 services:
-  explorer:
-    image: registry.n-t.io/karma/hlf-explorer/hlf-explorer:${TAG:-master}
+  hlf-explorer-api:
+    image: hlf-explorer-api
     env_file:
-      - ./dev.env
+      - ./docker/api/.env
     volumes:
-      - ./:/app:cached
+      - ./docker/api/data:/application/build/data
     depends_on:
-      - explorer_db
+      - hlf-explorer_db
     ports:
-      - 33000:3000
-    working_dir: /app
-    command: npm run start:dev
+      - 3000:3000
+    working_dir: /application/build
+    command: node main.js
     networks:
       - default
       - ledger
 
-  explorer_db:
+  hlf-explorer_db:
     image: postgres:11.4-alpine
     env_file:
-      - ./dev.env
+      - ./docker/database/.env
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:

@@ -5,16 +5,24 @@
     "main": "",
     "author": "Renat Gubaev",
     "license": "ISC",
-    "scripts": {},
+    "scripts": {
+        "api:docker:image:build": "docker build -t hlf-explorer-api -f ./docker/api/Dockerfile .",
+        "api:docker:image:update": "docker pull hlf-explorer-api:latest",
+        "api:docker:image:remove": "docker rmi -f hlf-explorer-api",
+        "api:docker:container:run": "docker run -p 3000:3000 -e WEB_PORT=3000 -e POSTGRES_USER= -e POSTGRES_PASSWORD= -e POSTGRES_DB= --name hlf-explorer-api hlf-explorer-api:latest",
+        "api:docker:container:start": "docker start hlf-explorer-api",
+        "api:docker:container:stop": "docker stop hlf-explorer-api",
+        "api:docker:container:remove": "docker rm hlf-explorer-api",
+        "submodules:update": "git submodule update --init"
+    },
     "dependencies": {
-        "@hlf-core/api": "^2.0.6",
         "@hlf-core/transport": "^2.0.3",
         "@hlf-explorer/common": "^2.0.1",
-        "@project/module": "file:./src/packages/module",
         "@nestjs/platform-express": "^8.2.6",
         "@nestjs/swagger": "^5.1.5",
         "@nestjs/typeorm": "^8.0.3",
-        "@ts-core/backend-nestjs": "^8.0.5"
+        "@project/module": "file:./src/packages/module",
+        "@ts-core/backend-nestjs": "^8.0.6"
     },
     "devDependencies": {
         "prettier": "^2.5.1",

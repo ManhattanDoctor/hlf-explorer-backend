@@ -8,8 +8,6 @@ copycerts_solo:
 	cp ../../karma/karma-ledger/network/solo/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt ./src/fabcerts/peers/org1/peer0/ca.crt
 	cp ../../karma/karma-ledger/network/solo/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/ca.crt ./src/fabcerts/orderers/ca.crt
 
-
-
 copycerts:
 	rm -rf ./src/fabcerts/orderers/* ./src/fabcerts/peers/org1/peer0/* ./src/fabcerts/ca/* ./src/fabcerts/peers/org1/peer1/* ./src/fabcerts/orderers/*
 	cp ../karma-ledger/network/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt ./src/fabcerts/peers/org1/peer0/ca.crt

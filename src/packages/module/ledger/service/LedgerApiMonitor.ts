@@ -50,7 +50,6 @@ export class LedgerApiMonitor extends LoggerWrapper implements OnGatewayInit<Nam
         item.name = ledger.name;
         item.blocksLast = new LedgerBlocksLast(await this.getBlocks(ledger.id));
         item.blockLast = item.blocksLast.getFirst();
-        console.log(item);
         return item;
     }
 

@@ -4,5 +4,5 @@
         "baseUrl": ".",
         "outDir": "./build"
     },
-    "include": ["main.ts", "ormconfig.ts", "src/**/*", "../../../node_modules/@project/module/**/*"]
+    "include": ["main.ts", "ormconfig.ts", "src/**/*", "../../../../node_modules/@project/**/*"]
 }

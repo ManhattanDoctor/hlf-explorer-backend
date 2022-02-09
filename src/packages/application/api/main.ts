@@ -6,9 +6,9 @@ import { AllErrorFilter, ExtendedErrorFilter, HttpExceptionFilter, ValidationExc
 import { FileUtil } from '@ts-core/backend/file';
 import { DateUtil } from '@ts-core/common/util';
 import * as compression from 'compression';
-import * as helmet from "helmet";
 import * as path from 'path';
 import * as _ from 'lodash';
+import helmet from "helmet";
 import { AppModule } from './src/AppModule';
 import { AppSettings } from './src/AppSettings';
 
@@ -32,7 +32,7 @@ async function bootstrap(): Promise<void> {
     let application = await NestFactory.create(AppModule.forRoot(settings), { logger });
     application.useLogger(logger);
 
-    application.use(helmet());
+    // application.use(helmet());
     application.use(compression());
     application.enableCors({ origin: true });
     application.useGlobalPipes(new ValidationPipe({ transform: true }));

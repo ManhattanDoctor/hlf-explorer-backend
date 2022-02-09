@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-GID=$(id -g $USER)
-UID=$(id -u $USER)
-
-docker-compose run --rm --user ${UID}:${GID} explorer npm run migration:create $1

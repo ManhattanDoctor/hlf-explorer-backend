@@ -42,8 +42,8 @@ export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactio
 
 @Controller(TRANSACTION_URL)
 export class LedgerBlockTransactionGetController extends DefaultController<
-    LedgerBlockTransactionGetRequest,
-    LedgerBlockTransactionGetResponse
+LedgerBlockTransactionGetRequest,
+LedgerBlockTransactionGetResponse
 > {
     // --------------------------------------------------------------------------
     //

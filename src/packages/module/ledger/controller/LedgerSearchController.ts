@@ -4,7 +4,7 @@ import { DefaultController } from '@ts-core/backend-nestjs/controller';
 import { Logger } from '@ts-core/common/logger';
 import { IsDefined, isUUID, IsString } from 'class-validator';
 import { LedgerBlock, LedgerBlockTransaction, LedgerBlockEvent } from '@hlf-explorer/common/ledger';
-import { ILedgerSearchRequest, ILedgerSearchResponse, SEARCH_URL } from '@hlf-explorer/common/api';
+import { ILedgerSearchRequest, ILedgerSearchResponse, SEARCH_URL, TRANSACTION_URL } from '@hlf-explorer/common/api';
 import * as _ from 'lodash';
 import { ExtendedError } from '@ts-core/common/error';
 import { Validator } from 'class-validator';
@@ -78,7 +78,7 @@ export class LedgerSearchController extends DefaultController<LedgerSearchReques
         } else if (!_.isNaN(Number(value))) {
             url = `block?hashOrNumber=${value}`;
         } else {
-            url = `transaction?hashOrUid=${value}`;
+            url = `transaction?hash=${value}`;
         }
         url = `${url}&ledgerName=${params.ledgerName}`;
         return response.redirect(url);
