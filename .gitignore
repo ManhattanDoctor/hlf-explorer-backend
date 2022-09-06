@@ -24,3 +24,6 @@ yarn-error.log
 
 # backend
 .werf_secret_key
+
+# env
+**/.env
