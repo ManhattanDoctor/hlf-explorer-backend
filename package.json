@@ -21,7 +21,7 @@
     "dependencies": {
         "@hlf-core/transport": "^2.0.3",
         "@hlf-explorer/common": "^2.0.3",
-        "@nestjs/platform-express": "^8.2.6",
+        "@nestjs/platform-express": "^8.4.7",
         "@nestjs/swagger": "^5.1.5",
         "@nestjs/typeorm": "^8.0.3",
         "@project/module": "file:./src/packages/module",
