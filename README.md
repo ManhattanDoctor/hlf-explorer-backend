@@ -228,8 +228,8 @@ All connected clients receive update
 
 ### Шаг 1: Клонирование репозитория
 ```bash
-git clone <repository-url>
-cd hlf-explorer-new/backend
+git clone https://github.com/ManhattanDoctor/hlf-explorer-backend.git
+cd hlf-explorer-backend
 ```
 
 ### Шаг 2: Установка зависимостей
@@ -257,23 +257,38 @@ createdb hlf_explorer
 ```
 
 ### Шаг 5: Настройка Ledgers
-Создайте файл `ledgers.json` с конфигурацией ваших HLF сетей:
+Создайте файл `ledgers.json` с конфигурацией ваших HLF сетей (шаблон — в
+`src/packages/application/api/data/local/ledgers.json`). Идентичность и профиль
+подключения можно задать путями к файлам либо встроить значениями:
 
 ```json
 {
   "ledgers": [
     {
-      "uid": "dao",
-      "batch": true,
-      "connectionProfile": "./data/local/dao/connection.json",
-      "identity": {
-        "cert": "./data/local/dao/User1@org1.example.com-cert.pem",
-        "key": "./data/local/dao/priv_sk"
+      "uid": "ExampleLocal",
+      "fabricIdentity": "User1",
+      "fabricIdentityMspId": "Org1MSP",
+      "fabricIdentityPrivateKey": "./data/local/example/priv_sk",
+      "fabricIdentityCertificate": "./data/local/example/User1@org1.example.com-cert.pem",
+      "fabricNetworkName": "primary",
+      "fabricChaincodeName": "main",
+      "fabricIsDiscoveryEnabled": false,
+      "fabricIsDiscoveryAsLocalhost": false,
+      "fabricConnectionSettings": "./data/local/example/connection.json",
+      "batch": {
+        "timeout": 10000,
+        "key": {
+          "publicKey": "<your-batch-public-key>",
+          "privateKey": "<your-batch-private-key>"
+        }
       }
     }
   ]
 }
 ```
+
+> ⚠️ Файлы идентичности (`priv_sk`, `*-cert.pem`, `connection.json`) и приватные
+> ключи никогда не коммитятся — каталоги `data/local/*/` и эти файлы в `.gitignore`.
 
 ---
 
@@ -1240,10 +1255,10 @@ Copyright (c) 2024 Renat Gubaev
 Если у вас возникли вопросы или проблемы:
 
 1. Проверьте [Troubleshooting](#-troubleshooting) секцию
-2. Поищите в [Issues](https://github.com/your-repo/issues)
+2. Поищите в [Issues](https://github.com/ManhattanDoctor/hlf-explorer-backend/issues)
 3. Создайте новый Issue с детальным описанием проблемы
 
 ---
 
 **Версия:** 2.0.0
-**Последнее обновление:** Январь 2024
+**Последнее обновление:** Октябрь 2026

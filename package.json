@@ -21,12 +21,12 @@
     "license": "ISC",
     "repository": {
         "type": "git",
-        "url": "https://github.com/renatgubaev/hlf-explorer-new"
+        "url": "https://github.com/ManhattanDoctor/hlf-explorer-backend.git"
     },
     "bugs": {
-        "url": "https://github.com/renatgubaev/hlf-explorer-new/issues"
+        "url": "https://github.com/ManhattanDoctor/hlf-explorer-backend/issues"
     },
-    "homepage": "https://github.com/renatgubaev/hlf-explorer-new#readme",
+    "homepage": "https://github.com/ManhattanDoctor/hlf-explorer-backend#readme",
     "engines": {
         "node": ">=14.0.0",
         "npm": ">=6.0.0"
@@ -35,7 +35,7 @@
         "start": "npm run start --prefix src/packages/application/api",
         "build": "npm run build --prefix src/packages/application/api",
         "reset": "npm run reset --prefix src/packages/application/api && npm run start --prefix src/packages/application/api",
-        "api:docker:image:build": "docker build -t hlf-explorer-api -f ./docker/api/Dockerfile .",
+        "api:docker:image:build": "docker build -t hlf-explorer-api -f ./docker/Dockerfile .",
         "api:docker:image:update": "docker pull hlf-explorer-api:latest",
         "api:docker:image:remove": "docker rmi -f hlf-explorer-api",
         "api:docker:container:run": "docker run -p 3000:3000 -e WEB_PORT=3000 -e POSTGRES_USER= -e POSTGRES_PASSWORD= -e POSTGRES_DB= --name hlf-explorer-api hlf-explorer-api:latest",

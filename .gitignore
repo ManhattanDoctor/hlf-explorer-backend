@@ -42,3 +42,7 @@ src/packages/application/api/data/*.pem
 # detached explorer runner
 explorer.log
 explorer.pid
+
+# real env files (use *.example as templates)
+.env
+docker/.env
