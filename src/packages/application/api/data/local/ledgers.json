@@ -1,0 +1,27 @@
+{
+    "ledgers": [
+        {
+            "uid": "ExampleLocal",
+
+            "fabricIdentity": "User1",
+            "fabricIdentityMspId": "Org1MSP",
+            "fabricIdentityPrivateKey": "./data/local/example/priv_sk",
+            "fabricIdentityCertificate": "./data/local/example/User1@org1.example.com-cert.pem",
+
+            "fabricNetworkName": "primary",
+            "fabricChaincodeName": "main",
+
+            "fabricIsDiscoveryEnabled": false,
+            "fabricIsDiscoveryAsLocalhost": false,
+
+            "fabricConnectionSettings": "./data/local/example/connection.json",
+            "batch": {
+                "timeout": 10000,
+                "key": {
+                    "publicKey": "<your-batch-public-key>",
+                    "privateKey": "<your-batch-private-key>"
+                }
+            }
+        }
+    ]
+}

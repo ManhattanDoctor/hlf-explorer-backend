@@ -1,0 +1,61 @@
+{
+    "ledgers": [
+        {
+            "uid": "ExampleLocal",
+            "fabricIdentity": "user",
+            "fabricIdentityMspId": "Org1MSP",
+            "fabricIdentityPrivateKey": "-----BEGIN PRIVATE KEY-----\n<your-identity-private-key>\n-----END PRIVATE KEY-----\n",
+            "fabricIdentityCertificate": "-----BEGIN CERTIFICATE-----\n<your-identity-certificate>\n-----END CERTIFICATE-----\n",
+
+            "fabricNetworkName": "primary",
+            "fabricChaincodeName": "main",
+
+            "fabricIsDiscoveryEnabled": false,
+            "fabricIsDiscoveryAsLocalhost": false,
+
+            "batch": {
+                "timeout": 10000,
+                "key": {
+                    "publicKey": "<your-batch-public-key>",
+                    "privateKey": "<your-batch-private-key>"
+                }
+            },
+
+            "fabricConnectionSettings": {
+                "name": "example-ledger-network",
+                "version": "1.0.0",
+                "client": {
+                    "organization": "Org1"
+                },
+                "channels": {
+                    "primary": {
+                        "orderers": ["orderer.example.com"],
+                        "peers": {
+                            "peer0.org1.example.com": {}
+                        }
+                    }
+                },
+                "organizations": {
+                    "Org1": {
+                        "mspid": "Org1MSP",
+                        "peers": ["peer0.org1.example.com"]
+                    }
+                },
+                "peers": {
+                    "peer0.org1.example.com": {
+                        "url": "grpc://peer0.org1.example.com:7051",
+                        "grpcOptions": {
+                            "ssl-target-name-override": "peer0.org1.example.com",
+                            "hostnameOverride": "peer0.org1.example.com"
+                        }
+                    }
+                },
+                "orderers": {
+                    "orderer.example.com": {
+                        "url": "grpc://orderer.example.com:7050"
+                    }
+                }
+            }
+        }
+    ]
+}

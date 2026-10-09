@@ -1,0 +1,27 @@
+version: '3.2'
+
+services:
+  hlf-explorer-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file:
+      - ./docker/.env
+    volumes:
+      - ./docker/data:/application/build/data
+    depends_on:
+      - hlf-explorer-db
+    ports:
+      - 3000:3000
+
+  hlf-explorer-db:
+    image: postgres:11.4-alpine
+    env_file:
+      - ./docker/.env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 35432:5432
+
+volumes:
+  pg_data:

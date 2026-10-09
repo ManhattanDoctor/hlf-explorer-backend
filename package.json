@@ -1,0 +1,63 @@
+{
+    "name": "@hlf-explorer/backend",
+    "version": "2.0.0",
+    "description": "Professional backend solution for monitoring, analyzing and interacting with Hyperledger Fabric blockchain networks. Provides REST and WebSocket API for working with blocks, transactions, events and blockchain state management.",
+    "keywords": [
+        "hyperledger",
+        "fabric",
+        "blockchain",
+        "explorer",
+        "nestjs",
+        "typescript",
+        "api",
+        "websocket",
+        "monitoring"
+    ],
+    "main": "",
+    "author": {
+        "name": "Renat Gubaev",
+        "email": "renat.gubaev@gmail.com"
+    },
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/renatgubaev/hlf-explorer-new"
+    },
+    "bugs": {
+        "url": "https://github.com/renatgubaev/hlf-explorer-new/issues"
+    },
+    "homepage": "https://github.com/renatgubaev/hlf-explorer-new#readme",
+    "engines": {
+        "node": ">=14.0.0",
+        "npm": ">=6.0.0"
+    },
+    "scripts": {
+        "start": "npm run start --prefix src/packages/application/api",
+        "build": "npm run build --prefix src/packages/application/api",
+        "reset": "npm run reset --prefix src/packages/application/api && npm run start --prefix src/packages/application/api",
+        "api:docker:image:build": "docker build -t hlf-explorer-api -f ./docker/api/Dockerfile .",
+        "api:docker:image:update": "docker pull hlf-explorer-api:latest",
+        "api:docker:image:remove": "docker rmi -f hlf-explorer-api",
+        "api:docker:container:run": "docker run -p 3000:3000 -e WEB_PORT=3000 -e POSTGRES_USER= -e POSTGRES_PASSWORD= -e POSTGRES_DB= --name hlf-explorer-api hlf-explorer-api:latest",
+        "api:docker:container:start": "docker start hlf-explorer-api",
+        "api:docker:container:stop": "docker stop hlf-explorer-api",
+        "api:docker:container:remove": "docker rm hlf-explorer-api",
+        "submodules:update": "git submodule update --init"
+    },
+    "dependencies": {
+        "@hlf-core/transport": "~3.2.8",
+        "@hlf-explorer/common": "~3.2.6",
+        "@nestjs/platform-express": "^11.1.0",
+        "@nestjs/swagger": "^11.2.0",
+        "@nestjs/typeorm": "^11.0.0",
+        "@project/module": "file:./src/packages/module",
+        "@ts-core/backend": "~3.0.47",
+        "@ts-core/backend-nestjs": "~11.0.1",
+        "@ts-core/socket-server": "^3.0.28"
+    },
+    "devDependencies": {
+        "prettier": "^2.5.1",
+        "ts-node": "^10.9.2",
+        "tsconfig-paths": "^3.12.0"
+    }
+}
