@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs';
 import { Logger } from '@ts-core/common';
 import { IsDefined, IsNumber } from 'class-validator';
@@ -32,6 +32,7 @@ export class LedgerBlockLastGetResponse implements ILedgerBlockLastGetResponse {
 //
 // --------------------------------------------------------------------------
 
+@ApiTags('Block')
 @Controller(BLOCK_LAST_URL)
 export class LedgerBlockLastGetController extends DefaultController<LedgerBlockLastGetRequest, LedgerBlockLastGetResponse> {
 

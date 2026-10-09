@@ -1,9 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import {
-    ApiOkResponse,
-    ApiOperation,
-    ApiPropertyOptional,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs';
 import { TypeormUtil } from '@ts-core/backend';
 import { Logger, FilterableConditions, FilterableSort, Paginable, IFilterable } from '@ts-core/common';
@@ -38,6 +34,7 @@ export class LedgerListDto implements IFilterable<Ledger> {
 //
 // --------------------------------------------------------------------------
 
+@ApiTags('Ledger')
 @Controller(LEDGERS_URL)
 export class LedgerListController extends DefaultController<LedgerListDto, Array<Ledger>> {
     // --------------------------------------------------------------------------
@@ -57,8 +54,8 @@ export class LedgerListController extends DefaultController<LedgerListDto, Array
     // --------------------------------------------------------------------------
 
     @Get()
-    @ApiOperation({ summary: `Ledger list` })
-    @ApiOkResponse({ type: Array<Ledger> })
+    @ApiOperation({ summary: `Ledger list`, description: `List of registered Fabric networks and their parsing state.` })
+    @ApiOkResponse({ type: Ledger, isArray: true })
     public async executeExtended(@Query({ transform: Paginable.transform }) params: LedgerListDto): Promise<Array<Ledger>> {
         let query = this.database.ledger.createQueryBuilder('ledger');
         return TypeormUtil.toFilterable(query, params, this.transform);

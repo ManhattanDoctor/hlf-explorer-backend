@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
-import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs';
 import { ExtendedError, Logger } from '@ts-core/common';
 import { IsDefined, isUUID, IsString } from 'class-validator';
@@ -35,6 +35,7 @@ export class LedgerSearchResponse implements ILedgerSearchResponse {
 //
 // --------------------------------------------------------------------------
 
+@ApiTags('Search')
 @Controller(SEARCH_URL)
 export class LedgerSearchController extends DefaultController<LedgerSearchRequest, LedgerSearchResponse> {
     // --------------------------------------------------------------------------

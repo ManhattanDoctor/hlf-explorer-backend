@@ -406,9 +406,14 @@ npm run reset
 ## 📡 API Endpoints
 
 ### Swagger документация
-Генерация OpenAPI-документации реализована (`generateDocs`, путь `api`), но по умолчанию
-**отключена** — вызов закомментирован в `main.ts`. Чтобы включить, раскомментируйте
-`await generateDocs(application)` и пересоберите; документация будет доступна на `/api`.
+Включена по умолчанию (`swagger.ts`, монтируется в `main.ts`):
+- **Swagger UI** — `http://localhost:3000/swagger`
+- **OpenAPI JSON** — `http://localhost:3000/swagger-json`
+
+Эндпоинты сгруппированы по тегам (`Ledger`, `Block`, `Transaction`, `Event`, `Search`,
+`Command`, `Health`, `Prometheus`); схемы моделей (`Ledger`, `LedgerBlock`,
+`LedgerBlockTransaction`, `LedgerBlockEvent`) описаны декораторами `@ts-core/swagger`
+в `@hlf-explorer/common`.
 
 > Все REST-маршруты ниже имеют префикс `api/ledger/`.
 

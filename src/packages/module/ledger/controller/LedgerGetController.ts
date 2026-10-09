@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs';
 import { DateUtil, Logger } from '@ts-core/common';
 import { IsDefined } from 'class-validator';
@@ -33,6 +33,7 @@ export class LedgerGetResponse implements ILedgerGetResponse {
 //
 // --------------------------------------------------------------------------
 
+@ApiTags('Ledger')
 @Controller(LEDGER_URL)
 export class LedgerGetController extends DefaultController<LedgerGetRequest, LedgerGetResponse> {
     // --------------------------------------------------------------------------

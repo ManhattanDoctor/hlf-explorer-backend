@@ -1,10 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import {
-    ApiOkResponse,
-    ApiOperation,
-    ApiProperty,
-    ApiPropertyOptional,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiPropertyOptional, ApiTags } from '@nestjs/swagger';
 import { DefaultController } from '@ts-core/backend-nestjs';
 import { TypeormUtil } from '@ts-core/backend';
 import { Logger, FilterableConditions, FilterableSort, IPagination, Paginable } from '@ts-core/common';
@@ -62,6 +57,7 @@ export class LedgerBlockTransactionListDtoResponse implements IPagination<Ledger
 //
 // --------------------------------------------------------------------------
 
+@ApiTags('Transaction')
 @Controller(TRANSACTIONS_URL)
 export class LedgerBlockTransactionListController extends DefaultController<
     LedgerBlockTransactionListDto,

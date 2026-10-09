@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiProperty, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Cache, DefaultController } from '@ts-core/backend-nestjs';
 import { IsDefined, IsString, isUUID } from 'class-validator';
 import { TRANSACTION_URL, LedgerBlock, ILedgerBlockTransactionGetResponse, ILedgerBlockTransactionGetRequest, LedgerBlockTransaction } from '@hlf-explorer/common';
@@ -35,6 +35,7 @@ export class LedgerBlockTransactionGetResponse implements ILedgerBlockTransactio
 //
 // --------------------------------------------------------------------------
 
+@ApiTags('Transaction')
 @Controller(TRANSACTION_URL)
 export class LedgerBlockTransactionGetController extends DefaultController<LedgerBlockTransactionGetRequest, LedgerBlockTransactionGetResponse> {
     // --------------------------------------------------------------------------
