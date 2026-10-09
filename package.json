@@ -28,8 +28,8 @@
     },
     "homepage": "https://github.com/ManhattanDoctor/hlf-explorer-backend#readme",
     "engines": {
-        "node": ">=14.0.0",
-        "npm": ">=6.0.0"
+        "node": ">=20.0.0",
+        "npm": ">=9.0.0"
     },
     "scripts": {
         "start": "npm run start --prefix src/packages/application/api",

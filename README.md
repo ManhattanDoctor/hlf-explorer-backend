@@ -21,6 +21,7 @@
 - [WebSocket Events](#-websocket-events)
 - [Структура проекта](#-структура-проекта)
 - [Разработка](#-разработка)
+- [Безопасность](#-безопасность)
 - [Развертывание](#-развертывание)
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
@@ -221,8 +222,8 @@ All connected clients receive update
 ## 📦 Установка
 
 ### Требования
-- Node.js >= 14.x
-- npm >= 6.x
+- Node.js >= 20.x (требование NestJS 11)
+- npm >= 9.x
 - PostgreSQL >= 11.4
 - Docker & Docker Compose (опционально)
 
@@ -298,7 +299,7 @@ createdb hlf_explorer
 
 #### Основные настройки
 ```bash
-# Web Server
+# Web Server (встроенный дефолт WEB_PORT — 3001; примеры и docker используют 3000)
 WEB_PORT=3000
 WEB_HOST=localhost
 
@@ -405,13 +406,17 @@ npm run reset
 ## 📡 API Endpoints
 
 ### Swagger документация
-После запуска доступна по адресу: `http://localhost:3000/api`
+Генерация OpenAPI-документации реализована (`generateDocs`, путь `api`), но по умолчанию
+**отключена** — вызов закомментирован в `main.ts`. Чтобы включить, раскомментируйте
+`await generateDocs(application)` и пересоберите; документация будет доступна на `/api`.
+
+> Все REST-маршруты ниже имеют префикс `api/ledger/`.
 
 ### Ledgers
 
 #### Получить список ledger'ов
 ```http
-GET /ledgers
+GET api/ledger/ledgers
 ```
 
 **Ответ:**
@@ -430,14 +435,14 @@ GET /ledgers
 
 #### Получить ledger по имени
 ```http
-GET /ledger?name=dao
+GET api/ledger/ledger?nameOrId=dao
 ```
 
 ### Blocks
 
 #### Получить список блоков
 ```http
-GET /blocks?ledgerName=dao&pageSize=10&pageIndex=0
+GET api/ledger/blocks?ledgerName=dao&pageSize=10&pageIndex=0
 ```
 
 **Query параметры:**
@@ -469,7 +474,7 @@ GET /blocks?ledgerName=dao&pageSize=10&pageIndex=0
 
 #### Получить блок по номеру или хешу
 ```http
-GET /block?ledgerName=dao&hashOrNumber=1522
+GET api/ledger/block?ledgerName=dao&hashOrNumber=1522
 ```
 
 **Ответ:**
@@ -489,14 +494,14 @@ GET /block?ledgerName=dao&hashOrNumber=1522
 
 #### Получить последний блок
 ```http
-GET /block/last?ledgerName=dao
+GET api/ledger/blockLast?nameOrId=dao
 ```
 
 ### Transactions
 
 #### Получить список транзакций
 ```http
-GET /transactions?ledgerName=dao&pageSize=20
+GET api/ledger/transactions?ledgerName=dao&pageSize=20
 ```
 
 **Query параметры:**
@@ -525,14 +530,14 @@ GET /transactions?ledgerName=dao&pageSize=20
 
 #### Получить транзакцию по UID
 ```http
-GET /transaction?ledgerName=dao&uid=tx_abc123
+GET api/ledger/transaction?ledgerName=dao&hash=tx_abc123
 ```
 
 ### Events
 
 #### Получить список событий
 ```http
-GET /events?ledgerName=dao&pageSize=50
+GET api/ledger/events?ledgerName=dao&pageSize=50
 ```
 
 **Ответ:**
@@ -557,79 +562,68 @@ GET /events?ledgerName=dao&pageSize=50
 
 #### Получить событие по UID
 ```http
-GET /event?ledgerName=dao&uid=event_xyz789
+GET api/ledger/event?ledgerName=dao&uid=event_xyz789
 ```
 
 ### Search
 
-#### Поиск по всем сущностям
+#### Поиск по сущности
 ```http
-GET /search?ledgerName=dao&text=UserCreate&pageSize=10
+GET api/ledger/search?ledgerName=dao&query=1522
 ```
 
 **Query параметры:**
-- `text` - поисковый запрос
+- `query` - значение: UUID (событие), число (номер блока) или строка (хеш блока/транзакции)
 - `ledgerName` - имя ledger
-- Стандартные параметры пагинации
 
-**Ответ:** объединенные результаты из блоков, транзакций и событий
+**Поведение:** это не полнотекстовый поиск, а эвристический редирект. По виду `query`
+сервис отвечает `302 Redirect` на соответствующий эндпоинт точного совпадения —
+`event?uid=…`, `block?hashOrNumber=…` или `transaction?hash=…`.
 
 ### Commands
 
-#### Отправить команду в блокчейн
+Проксирует произвольную команду транспорта в чейнкод выбранной сети.
+
 ```http
-POST /request
+POST api/ledger/request
 Content-Type: application/json
 
 {
   "ledgerName": "dao",
-  "command": {
+  "isAsync": true,
+  "request": {
+    "id": "0e2f…",
     "name": "UserCreate",
-    "request": {
-      "name": "John Doe",
-      "email": "john@example.com"
-    }
-  }
+    "request": { "name": "John Doe", "email": "john@example.com" }
+  },
+  "options": {}
 }
 ```
 
-**Ответ:**
-```json
-{
-  "id": "cmd_123",
-  "response": {
-    "userId": "user_456",
-    "status": "created"
-  }
-}
-```
+**Поля:**
+- `request` - сама команда (`ITransportCommand`): `name`, `request` (payload), `id`
+- `isAsync` - `true` → `sendListen` (дождаться ответа чейнкода), `false` → `send` (fire-and-forget)
+- `ledgerName` - имя сети
+- `options` - опции транспорта (необязательно)
 
-### Reset
+**Ответ:** при `isAsync: true` — результат выполнения команды в чейнкоде; при `isAsync: false` — пусто.
 
-#### Сбросить ledger (удалить все блоки)
-```http
-POST /ledger/reset
-Content-Type: application/json
+> ⚠️ Эндпоинт не проверяет подпись команды и не аутентифицирует вызывающего (см. раздел «Безопасность»).
 
-{
-  "ledgerName": "dao"
-}
-```
+> Сброс ledger (удаление блоков и обнуление позиции разбора) выполняется внутренней
+> операцией `LedgerService.ledgerReset` (npm-скрипт `reset`, событие `LEDGER_RESETED`),
+> а не публичным REST-маршрутом — HTTP-эндпоинта сброса в backend нет.
 
 ### Health Check
 
 #### Проверить состояние сервиса
 ```http
-GET /healthcheck
+GET /health/live
+GET /health/ready
 ```
 
-**Ответ:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-20T10:30:00.000Z"
-}
-```
+Обе проверки выполняют запрос к БД (`ledger.find()`) и возвращают успех, если соединение
+с PostgreSQL живо. Отдельного `@nestjs/terminus` нет.
 
 ### Prometheus метрики
 ```http
@@ -654,47 +648,55 @@ socket.on('connect', () => {
 });
 ```
 
-### Namespace подписки
+### Namespace
 
-Для получения событий конкретного ledger:
+Все события идут через **единый** namespace `ledger` (константа `LEDGER_SOCKET_NAMESPACE`),
+а не через отдельный namespace на каждую сеть. Разделение по сетям — по полю `id`/`ledgerId`
+в данных события.
 
 ```javascript
-const daoSocket = io('http://localhost:3000/dao');
+const socket = io('http://localhost:3000/ledger', { transports: ['websocket'] });
 ```
 
-### События
+### События (`LedgerSocketEvent`)
 
-#### LEDGER_BLOCK_PARSED
-Новый блок спарсен и сохранен
+#### LEDGER_LIST_RECEIVED
+Список сетей и их состояние — приходит сразу после подключения.
 
 ```javascript
-socket.on('LEDGER_BLOCK_PARSED', (data) => {
-  console.log('New block parsed:', data.block);
-  // data.ledgerId - ID ledger
-  // data.block - полная информация о блоке
+socket.on('LEDGER_LIST_RECEIVED', (ledgers) => {
+  console.log('Ledgers:', ledgers); // Array<LedgerInfo> с последними блоками
 });
 ```
 
-#### LEDGER_STATE_CHANGED
-Состояние ledger изменилось
+#### LEDGER_BLOCK_PARSED
+Новый блок спарсен и сохранён.
 
 ```javascript
-socket.on('LEDGER_STATE_CHANGED', (data) => {
-  console.log('Ledger state changed:', data);
-  // data.ledgerId
-  // data.blockHeight
-  // data.blockHeightParsed
+socket.on('LEDGER_BLOCK_PARSED', (ledger) => {
+  console.log('New block:', ledger.id, ledger.blocksLast);
+});
+```
+
+#### LEDGER_UPDATED
+Изменилось состояние сети (высота / позиция разбора).
+
+```javascript
+socket.on('LEDGER_UPDATED', (ledger) => {
+  console.log('Updated:', ledger.id, ledger.blockHeight, ledger.blockHeightParsed);
 });
 ```
 
 #### LEDGER_RESETED
-Ledger был сброшен
+Сеть была сброшена.
 
 ```javascript
-socket.on('LEDGER_RESETED', (data) => {
-  console.log('Ledger reseted:', data.ledgerId);
+socket.on('LEDGER_RESETED', (ledger) => {
+  console.log('Reseted:', ledger.id);
 });
 ```
+
+Также транслируются `LEDGER_EVENT_DISPATCHED` (событие чейнкода) и `LEDGER_DEFAULT_FOUND`/`LEDGER_DEFAULT_NOT_FOUND`.
 
 ### Пример React компонента
 
@@ -706,10 +708,10 @@ const BlockMonitor = () => {
   const [latestBlock, setLatestBlock] = useState(null);
 
   useEffect(() => {
-    const socket = io('http://localhost:3000/dao');
+    const socket = io('http://localhost:3000/ledger', { transports: ['websocket'] });
 
-    socket.on('LEDGER_BLOCK_PARSED', (data) => {
-      setLatestBlock(data.block);
+    socket.on('LEDGER_BLOCK_PARSED', (ledger) => {
+      setLatestBlock(ledger.blocksLast?.[ledger.blocksLast.length - 1]);
     });
 
     return () => socket.disconnect();
@@ -737,10 +739,11 @@ const BlockMonitor = () => {
 ```
 backend/
 ├── docker/                          # Docker конфигурация
-│   ├── api/
-│   │   ├── Dockerfile              # Dockerfile для API
-│   │   └── data/                   # Volume для данных
-│   └── .env.example                # Пример переменных окружения
+│   ├── Dockerfile                  # Образ API
+│   ├── Dockerfile-migrations       # Образ для миграций
+│   ├── .env.example                # Пример переменных окружения
+│   └── data/
+│       └── ledgers.json            # Пример настроек сетей для Docker
 ├── src/
 │   └── packages/
 │       ├── application/
@@ -820,8 +823,10 @@ backend/
 │                   └── HealthcheckController.ts
 ├── docker-compose.yml              # Docker Compose конфиг
 ├── Makefile                        # Команды развертывания
+├── .env.example                    # Пример переменных окружения
 ├── package.json                    # Root зависимости
 ├── tsconfig.json                   # TypeScript конфиг
+├── LICENSE                         # ISC
 └── README.md                       # Этот файл
 ```
 
@@ -1002,6 +1007,27 @@ describe('LedgerService', () => {
   });
 });
 ```
+
+---
+
+## 🔒 Безопасность
+
+Это **инфраструктурный инструмент без встроенной аутентификации и авторизации** — так
+задумано для универсального решения:
+
+- REST-эндпоинты и WebSocket **открыты** — ни одного guard/токена в коде нет; CORS разрешён
+  для всех origin (`origin: true`), идентификатор socket-клиента = его `socket.id`.
+- `POST api/ledger/request` проксирует **любую** команду в чейнкод и **не проверяет подпись**
+  вызывающего — через него доступны read/write-операции чейнкода.
+- Чтение блоков/транзакций/событий и `GET /metrics` тоже анонимны.
+
+Защиту обеспечивает **развёртывание**, а не код explorer:
+
+- держите сервис во внутренней сети (не публикуйте порт наружу) либо за reverse-proxy с
+  аутентификацией/mTLS;
+- наружу открывайте только то, что действительно должно быть публичным (например, read-only
+  блоки), а `request` и `metrics` закрывайте;
+- управляйте доступом и rate-limiting на уровне прокси/ingress.
 
 ---
 
